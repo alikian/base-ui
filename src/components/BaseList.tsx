@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, CircularProgress, Alert, IconButton, TextField, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, CircularProgress, Alert, IconButton, TextField, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -17,6 +17,8 @@ interface BaseListProps {
 const BaseList: React.FC<BaseListProps> = ({ bases, loading, error, onDeleteBase, onUpdateBase }) => {
   const [editingBaseId, setEditingBaseId] = useState<string | null>(null);
   const [editedBase, setEditedBase] = useState<Partial<Base>>({});
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [baseToDelete, setBaseToDelete] = useState<string | null>(null);
 
   const handleDelete = async (baseId: string) => {
     try {
@@ -50,6 +52,23 @@ const BaseList: React.FC<BaseListProps> = ({ bases, loading, error, onDeleteBase
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditedBase((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const openDeleteDialog = (baseId: string) => {
+    setBaseToDelete(baseId);
+    setDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setBaseToDelete(null);
+    setDeleteDialogOpen(false);
+  };
+
+  const confirmDelete = () => {
+    if (baseToDelete) {
+      handleDelete(baseToDelete);
+      closeDeleteDialog();
+    }
   };
 
   if (loading) {
@@ -107,7 +126,7 @@ const BaseList: React.FC<BaseListProps> = ({ bases, loading, error, onDeleteBase
                       <EditIcon />
                     </IconButton>
                   )}
-                  <IconButton onClick={() => handleDelete(base.baseId)} aria-label="delete">
+                  <IconButton onClick={() => openDeleteDialog(base.baseId)} aria-label="delete">
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -116,6 +135,23 @@ const BaseList: React.FC<BaseListProps> = ({ bases, loading, error, onDeleteBase
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog open={deleteDialogOpen} onClose={closeDeleteDialog}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this base? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDeleteDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={confirmDelete} color="secondary">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
