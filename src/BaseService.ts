@@ -41,6 +41,7 @@ class BaseService {
       throw error;
     }
   }
+
   async createBase(baseData: Base): Promise<Base> {
     try {
       const headers = await getAuthHeaders();
@@ -67,6 +68,26 @@ class BaseService {
     }
   }
 
+  async deleteBase(baseId: string): Promise<void> {
+    try {
+      const headers = await getAuthHeaders();
+      await axios.delete(`${API_BASE_URL}/bases/${baseId}`, {
+        headers,
+      });
+    } catch (error) {
+      console.error('Error deleting base:', error);
+      throw error;
+    }
+  }
+
+  async updateBase(baseId: string, updatedBase: Partial<Base>): Promise<Base> {
+
+    // implementation
+
+    return updatedBase as Base; // replace with actual implementation
+
+  }
+  
   async listDocuments(baseId: string): Promise<Document[]> {
     try {
       const headers = await getAuthHeaders();
@@ -106,4 +127,5 @@ class BaseService {
     }
   }
 }
+
 export default BaseService;

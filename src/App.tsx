@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import BaseList from './components/BaseList';
 import AddBase from './components/AddBase';
@@ -32,10 +32,18 @@ function App() {
     setBases((prevBases) => [...prevBases, newBase]);
   };
 
+  const handleDeleteBase = (baseId: string) => {
+    setBases((prevBases) => prevBases.filter(base => base.baseId !== baseId));
+  };
+
+  const handleUpdateBase = (updatedBase: Base) => {
+    setBases((prevBases) => prevBases.map(base => (base.baseId === updatedBase.baseId ? updatedBase : base)));
+  };
+
   return (
     <div>
       <p>Welcome, {user?.username}</p>
-      <BaseList bases={bases} loading={loading} error={error} />
+      <BaseList bases={bases} loading={loading} error={error} onDeleteBase={handleDeleteBase} onUpdateBase={handleUpdateBase} />
       <AddBase onAddBase={handleAddBase} />
       <button onClick={signOut}>Sign out</button>
     </div>
