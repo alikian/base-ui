@@ -1,10 +1,10 @@
 export interface Base {
-    id: string;
+    baseId: string;
     ownerId: string;
-    name: string;
-    model: string;
+    baseName: string;
+    modelName: string;
     dimensions: number;
-    createdAt: Date;
+    createdAt: number;
     // Add other properties as needed
   }
   

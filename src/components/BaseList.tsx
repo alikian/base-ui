@@ -1,76 +1,53 @@
-import React, { useEffect, useState } from 'react';
-import BaseService from '../BaseService';
-import { List, ListItem, ListItemText, Typography, CircularProgress, Alert } from '@mui/material';
+import React from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, CircularProgress, Alert } from '@mui/material';
+import { Base } from '../models';
 
-interface Base {
-  id: string;
-  ownerId: string;
-  name: string;
-  model: string;
-  dimensions: number;
-  createdAt: Date;
-  // Add other properties as needed
+interface BaseListProps {
+  bases: Base[];
+  loading: boolean;
+  error: string | null;
 }
 
-const BaseList: React.FC = () => {
-    const [bases, setBases] = useState<Base[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-  
-    useEffect(() => {
-      const fetchBases = async () => {
-        try {
-          const baseService = new BaseService();
-          const basesData = await baseService.listBases();
-          setBases(basesData);
-        } catch (error) {
-          console.error('Error fetching bases:', error);
-          setError('Failed to fetch bases');
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchBases();
-    }, []);
-  
-    if (loading) {
-      return <CircularProgress />;
-    }
-  
-    if (error) {
-      return <Alert severity="error">{error}</Alert>;
-    }
-  
-    return (
-      <div>
-        <Typography variant="h4" gutterBottom>
-          Base List
-        </Typography>
-        <List>
-          {bases.map((base) => (
-            <ListItem key={base.id}>
-              <ListItemText
-                primary={base.name}
-                secondary={
-                  <>
-                    <Typography component="span" variant="body2" color="textPrimary">
-                      Owner ID: {base.ownerId}
-                    </Typography>
-                    <br />
-                    Model: {base.model}
-                    <br />
-                    Dimensions: {base.dimensions}
-                    <br />
-                    Created At: {new Date(base.createdAt).toLocaleString()}
-                  </>
-                }
-              />
-            </ListItem>
-          ))}
-        </List>
-      </div>
-    );
-  };
-  
-  export default BaseList;
+const BaseList: React.FC<BaseListProps> = ({ bases, loading, error }) => {
+  if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (error) {
+    return <Alert severity="error">{error}</Alert>;
+  }
+
+  return (
+    <div>
+      <Typography variant="h4" gutterBottom>
+        Base List
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Owner ID</TableCell>
+              <TableCell>Model</TableCell>
+              <TableCell>Dimensions</TableCell>
+              <TableCell>Created At</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {bases.map((base) => (
+              <TableRow key={base.baseId}>
+                <TableCell>{base.baseName}</TableCell>
+                <TableCell>{base.ownerId}</TableCell>
+                <TableCell>{base.modelName}</TableCell>
+                <TableCell>{base.dimensions}</TableCell>
+                <TableCell>{new Date(base.createdAt * 1000).toLocaleString()}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
+  );
+};
+
+export default BaseList;

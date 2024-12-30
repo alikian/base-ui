@@ -7,6 +7,7 @@ const API_BASE_URL = 'https://api.vectorsystem.net'; // Replace with your API Ga
 async function getJwtToken() {
   try {
     const session = await fetchAuthSession();
+    console.log(session);
     const jwtToken = session.tokens?.idToken?.toString();
     return jwtToken;
   } catch (error) {
