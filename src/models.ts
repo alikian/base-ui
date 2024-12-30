@@ -9,9 +9,11 @@ export interface Base {
   }
   
   export interface Document {
-    id: string;
-    title: string;
+    baseId: string;
+    documnentId: string;
+    documentName: string;
     type: string;
     size: number;
+    createdAt: number;
     // Add other properties as needed
   }
