@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, CircularProgress, Alert, IconButton, TextField, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Link } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -103,7 +104,7 @@ const BaseList: React.FC<BaseListProps> = ({ bases, loading, error, onDeleteBase
                   {editingBaseId === base.baseId ? (
                     <TextField name="baseName" value={editedBase.baseName || ''} onChange={handleChange} />
                   ) : (
-                    base.baseName
+                    <Link to={`/bases/${base.baseId}`}>{base.baseName}</Link>
                   )}
                 </TableCell>
                 <TableCell>{base.ownerId}</TableCell>

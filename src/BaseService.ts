@@ -126,6 +126,18 @@ class BaseService {
       throw error;
     }
   }
+
+  async deleteDocument(baseId: string, documentId: string): Promise<void> {
+    try {
+      const headers = await getAuthHeaders();
+      await axios.delete(`${API_BASE_URL}/bases/${baseId}/documents/${documentId}`, {
+        headers,
+      });
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      throw error;
+    }
+  }
 }
 
 export default BaseService;

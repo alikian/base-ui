@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes,Navigate } from 'react-router-dom';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import BaseList from './components/BaseList';
 import AddBase from './components/AddBase';
 import BaseService from './BaseService';
 import { Base } from './models';
+import DocumentList from './components/DocumentList';
 
 function App() {
   const { user, signOut } = useAuthenticator();
@@ -41,12 +43,23 @@ function App() {
   };
 
   return (
-    <div>
-      <p>Welcome, {user?.username}</p>
-      <BaseList bases={bases} loading={loading} error={error} onDeleteBase={handleDeleteBase} onUpdateBase={handleUpdateBase} />
-      <AddBase onAddBase={handleAddBase} />
-      <button onClick={signOut}>Sign out</button>
-    </div>
+    <Router>
+      <div>
+        <p>Welcome, {user?.username}</p>
+        <Routes>
+          <Route path="/" element={<Navigate to="/bases" />} />
+          <Route path="/bases" element={
+            <>
+              <BaseList bases={bases} loading={loading} error={error} onDeleteBase={handleDeleteBase} onUpdateBase={handleUpdateBase} />
+              <AddBase onAddBase={handleAddBase} />
+            </>
+          } />
+          <Route path="/bases/:baseId" element={<DocumentList />} />
+
+        </Routes>
+        <button onClick={signOut}>Sign out</button>
+      </div>
+    </Router>
   );
 }
 
