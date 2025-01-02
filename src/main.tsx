@@ -5,17 +5,6 @@ import App from './App';
 import { Authenticator } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
 
-const cognitoAuthConfig = {
-  authority: "https://cognito-idp.us-west-2.amazonaws.com/us-west-2_jPwwDxCeY",
-  client_id: "2p178tbstm4og868kk09riabpa",
-  redirect_uri: "http://localhost:3000",
-  response_type: "code",
-  scope: "email openid profile",
-};
-
-
-
-
 Amplify.configure({
   Auth: {
     Cognito: {

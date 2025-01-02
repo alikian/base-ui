@@ -83,6 +83,7 @@ class BaseService {
   async updateBase(baseId: string, updatedBase: Partial<Base>): Promise<Base> {
 
     // implementation
+    console.log('Updating base with ID:', baseId);
 
     return updatedBase as Base; // replace with actual implementation
 

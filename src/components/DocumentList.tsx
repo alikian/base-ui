@@ -1,24 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, CircularProgress, Alert, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Box } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, IconButton, Alert, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Box, CircularProgress } from '@mui/material';
+import { Link, useParams } from 'react-router-dom';
+import HomeIcon from '@mui/icons-material/Home';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Document } from '../models';
 import BaseService from '../BaseService';
-import { useParams } from 'react-router-dom';
 import AddDocument from './AddDocument';
-import { Link } from 'react-router-dom';
-import HomeIcon from '@mui/icons-material/Home';
 
-interface DocumentListProps {
-  baseId: string;
-  onDeleteDocument: (documentId: string) => void;
-}
-
-interface RouteParams {
-  baseId: string;
-}
-
-const DocumentList: React.FC<DocumentListProps> = () => {
-  const { baseId } = useParams<RouteParams>();
+const DocumentList: React.FC = () => {
+  const { baseId } = useParams<{ baseId: string }>();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +16,12 @@ const DocumentList: React.FC<DocumentListProps> = () => {
   const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
 
   const fetchDocuments = async () => {
+    if (!baseId) {
+      setError('Base ID is missing');
+      setLoading(false);
+      return;
+    }
+
     try {
       const baseService = new BaseService();
       const documentsData = await baseService.listDocuments(baseId);
@@ -49,6 +45,9 @@ const DocumentList: React.FC<DocumentListProps> = () => {
   const handleDelete = async (documentId: string) => {
     try {
       const baseService = new BaseService();
+      if(!baseId){
+        return;
+      }
       await baseService.deleteDocument(baseId, documentId);
       fetchDocuments(); // Refetch documents after deletion
     } catch (error) {
@@ -82,14 +81,20 @@ const DocumentList: React.FC<DocumentListProps> = () => {
   }
 
   if (documents.length === 0) {
-    return <idv><Alert severity="info">No documents found.</Alert>
-    <AddDocument baseId={baseId} onAddDocument={handleAddDocument} /></idv>;
+    if(!baseId){
+      return <Alert severity="info">No documents found.</Alert>;
+    }
+    return <div><Alert severity="info">No documents found.</Alert>
+    <AddDocument baseId={baseId} onAddDocument={handleAddDocument} /></div>;
   }
 
+  if(!baseId){
+    return <Alert severity="info">No documents found.</Alert>;
+  }
   return (
     <div>
       <Box display="flex" alignItems="center" mb={2}>
-        <Link to="/">
+        <Link to="/bases">
           <IconButton aria-label="home">
             <HomeIcon />
           </IconButton>
