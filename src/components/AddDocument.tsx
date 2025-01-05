@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, Alert, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import BaseService from '../BaseService';
 import { Document } from '../models';
+import MultipleFileUpload from './MultipleFileUpload';
 
 interface AddDocumentProps {
   baseId: string;
   onAddDocument: (newDocument: Document) => void;
+  onUploadComplete: () => void;
 }
 
-const AddDocument: React.FC<AddDocumentProps> = ({ baseId, onAddDocument }) => {
+const AddDocument: React.FC<AddDocumentProps> = ({ baseId, onAddDocument, onUploadComplete }) => {
   const [documentName, setDocumentName] = useState<string>('');
   const [documentType, setDocumentType] = useState<string>('URL');
   const [url, setUrl] = useState<string>('');
@@ -75,18 +77,14 @@ const AddDocument: React.FC<AddDocumentProps> = ({ baseId, onAddDocument }) => {
           required
         />
       )}
-      {documentType === 'File' && (
-        <TextField
-          type="file"
-        //   onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-          fullWidth
-          margin="normal"
-          required
-        />
-      )}
+      {documentType === 'URL' && (
       <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-        Add Document
+        Add URL
       </Button>
+      )}
+      {documentType === 'File' && (
+        <MultipleFileUpload onUploadComplete={onUploadComplete} baseId={baseId} />
+      )}
     </Box>
   );
 };

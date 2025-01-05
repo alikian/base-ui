@@ -139,6 +139,22 @@ class BaseService {
       throw error;
     }
   }
+
+  async generatePresign(baseId:string, fileData:{ fileName: string; fileType: string }[]){
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE_URL}/bases/${baseId}/presigned`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ files: fileData }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json(); // Define `data` here with the JSON response
+    return data;
+  }
 }
 
 export default BaseService;

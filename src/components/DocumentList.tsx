@@ -42,6 +42,12 @@ const DocumentList: React.FC = () => {
     setDocuments((prevDocuments) => [...prevDocuments, newDocument]);
   };
 
+  const handleFileUpload = async () => {
+    setTimeout(() => {
+      fetchDocuments();
+    }, 2000);
+  };
+
   const handleDelete = async (documentId: string) => {
     try {
       const baseService = new BaseService();
@@ -85,7 +91,7 @@ const DocumentList: React.FC = () => {
       return <Alert severity="info">No documents found.</Alert>;
     }
     return <div><Alert severity="info">No documents found.</Alert>
-    <AddDocument baseId={baseId} onAddDocument={handleAddDocument} /></div>;
+    <AddDocument baseId={baseId} onAddDocument={handleAddDocument} onUploadComplete={handleFileUpload}  /></div>;
   }
 
   if(!baseId){
@@ -131,7 +137,7 @@ const DocumentList: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <AddDocument baseId={baseId} onAddDocument={handleAddDocument} />
+      <AddDocument baseId={baseId} onAddDocument={handleAddDocument} onUploadComplete={handleFileUpload} />
 
       <Dialog open={deleteDialogOpen} onClose={closeDeleteDialog}>
         <DialogTitle>Confirm Delete</DialogTitle>
