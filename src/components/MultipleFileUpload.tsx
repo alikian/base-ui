@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Box, Button, Typography, Paper, LinearProgress, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Box, Button, Typography, Paper, LinearProgress, Snackbar, Alert } from '@mui/material';
 import { styled } from '@mui/system';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AddIcon from '@mui/icons-material/Add';
@@ -8,7 +8,7 @@ import axios from 'axios';
 import BaseService from '../BaseService';
 
 
-const DropzoneContainer = styled(Paper)(({ theme, isDragActive }: { theme: any, isDragActive: boolean }) => ({
+const DropzoneContainer = styled(Paper)(() => ({
     width: '100%',
     height: '150px',
     display: 'flex',
@@ -47,7 +47,7 @@ const MultipleFileUpload: React.FC<MultipleFileUploadProps> = ({ onUploadComplet
         setOpenSnackbar(false);
     };
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    const { getRootProps, getInputProps } = useDropzone({
         onDrop,
         multiple: true,
     });
@@ -73,7 +73,7 @@ const MultipleFileUpload: React.FC<MultipleFileUploadProps> = ({ onUploadComplet
                 return axios.put(url, file, {
                     headers: { 'Content-Type': file.type },
                     onUploadProgress: (progressEvent) => {
-                        const progressPercentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        const progressPercentage = progressEvent.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
                         setProgress((prevProgress) => ({
                             ...prevProgress,
                             [file.name]: progressPercentage,
@@ -105,7 +105,7 @@ const MultipleFileUpload: React.FC<MultipleFileUploadProps> = ({ onUploadComplet
 
     return (
         <div>
-            <DropzoneContainer {...getRootProps()} isDragActive={isDragActive}>
+            <DropzoneContainer {...getRootProps()} >
                 <input {...getInputProps()} />
                 <CloudUploadIcon fontSize="large" />
                 <Typography variant="h6">{'Drag & drop files here, or click to select files'}</Typography>
