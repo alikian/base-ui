@@ -128,6 +128,22 @@ class BaseService {
     }
   }
 
+  async searchChunk(baseId: string, query: string): Promise<Document[]> {
+    try {
+      const headers = await getAuthHeaders();
+      const response: AxiosResponse<Document[]> = await axios.get(`${API_BASE_URL}/bases/${baseId}/chunks?`, {
+        headers,
+        params: {
+          query,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error searching chunks:', error);
+      throw error;
+    }
+  }
+  
   async deleteDocument(baseId: string, documentId: string): Promise<void> {
     try {
       const headers = await getAuthHeaders();

@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Document } from '../models';
 import BaseService from '../BaseService';
 import AddDocument from './AddDocument';
+import SearchChunk from './SearchChunk';
 
 const DocumentList: React.FC = () => {
   const { baseId } = useParams<{ baseId: string }>();
@@ -91,7 +92,8 @@ const DocumentList: React.FC = () => {
       return <Alert severity="info">No documents found.</Alert>;
     }
     return <div><Alert severity="info">No documents found.</Alert>
-    <AddDocument baseId={baseId} onAddDocument={handleAddDocument} onUploadComplete={handleFileUpload}  /></div>;
+    <AddDocument baseId={baseId} onAddDocument={handleAddDocument} onUploadComplete={handleFileUpload}  />
+    </div>;
   }
 
   if(!baseId){
@@ -138,6 +140,7 @@ const DocumentList: React.FC = () => {
         </Table>
       </TableContainer>
       <AddDocument baseId={baseId} onAddDocument={handleAddDocument} onUploadComplete={handleFileUpload} />
+      <SearchChunk baseId={baseId} />
 
       <Dialog open={deleteDialogOpen} onClose={closeDeleteDialog}>
         <DialogTitle>Confirm Delete</DialogTitle>

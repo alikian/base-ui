@@ -17,3 +17,8 @@ export interface Base {
     createdAt: number;
     // Add other properties as needed
   }
+
+  export interface Chunck {
+    id: string;
+    text: string;
+  }
