@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { Base, Document } from './models';
+import { Base, Chunck, Document } from './models';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
 const API_BASE_URL = 'https://api.vectorsystem.net'; // Replace with your API Gateway URL
@@ -128,10 +128,10 @@ class BaseService {
     }
   }
 
-  async searchChunk(baseId: string, query: string): Promise<Document[]> {
+  async searchChunk(baseId: string, query: string): Promise<Chunck[]> {
     try {
       const headers = await getAuthHeaders();
-      const response: AxiosResponse<Document[]> = await axios.get(`${API_BASE_URL}/bases/${baseId}/chunks?`, {
+      const response: AxiosResponse<Chunck[]> = await axios.get(`${API_BASE_URL}/bases/${baseId}/chunks?`, {
         headers,
         params: {
           query,

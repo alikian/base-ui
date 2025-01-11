@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, CircularProgress, Alert, List, ListItem, ListItemText } from '@mui/material';
 import BaseService from '../BaseService';
-import { Chunk } from '../models';
+import { Chunck } from '../models';
 
 interface SearchChunkProps {
   baseId: string;
@@ -11,7 +11,7 @@ const SearchChunk: React.FC<SearchChunkProps> = ({ baseId }) => {
   const [query, setQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<Chunk[]>([]);
+  const [results, setResults] = useState<Chunck[]>([]);
 
   const handleSearch = async () => {
     setLoading(true);
