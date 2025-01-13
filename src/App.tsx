@@ -6,6 +6,8 @@ import AddBase from './components/AddBase';
 import BaseService from './BaseService';
 import { Base } from './models';
 import DocumentList from './components/DocumentList';
+import ChatbotList from './components/ChatbotList';
+import ChatbotDetails from './components/ChatbotDetails';
 
 function App() {
   const { user, signOut } = useAuthenticator();
@@ -55,6 +57,16 @@ function App() {
             </>
           } />
           <Route path="/bases/:baseId" element={<DocumentList />} />
+          <Route path="/chatbots" element={
+            <>
+              <ChatbotList  />
+            </>
+          } />
+          <Route path="/chatbots/:chatbotId" element={
+            <>
+              <ChatbotDetails  />
+            </>
+          } />
 
         </Routes>
         <button onClick={signOut}>Sign out</button>

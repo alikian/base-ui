@@ -22,3 +22,16 @@ export interface Base {
     id: string;
     text: string;
   }
+
+  export interface Chatbot {
+    chatbotId: string;
+    baseId: string;
+    chatbotName: string;
+    chatbotDescription: string;
+    createdAt: number;
+    llm: string;
+    llmModel: string;
+    llmTemperature: number;
+    aqPrompt: string;
+    cqPrompt: string;
+  }
