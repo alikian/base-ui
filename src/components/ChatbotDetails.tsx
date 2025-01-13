@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Chatbot } from '../models';
+import { Chatbot, Conversation, MessageResponse, Message } from '../models';
 import { DataService } from '../services/DataService';
 import { Box, Typography, TextField, Button, CircularProgress, Alert } from '@mui/material';
+import ChatbotRunService from '../services/ChatbotRunService';
 
 
 
@@ -11,14 +12,28 @@ const ChatbotDetails: React.FC = () => {
   const [chatbot, setChatbot] = useState<Chatbot | null>(null);
   const [question, setQuestion] = useState<string>('');
   const [response, setResponse] = useState<string>('');
+  const [conversation, setConversation] = useState<Conversation |  null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingChat, setLoadingChat] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const chatbotService = new DataService<Chatbot>('chatbots');
+  const conversationService = new DataService<Conversation>('conversations');
+  const chatbotRunService = new ChatbotRunService(chatbotId!)
 
   useEffect(() => {
     const fetchChatbot = async () => {
+      console.log('chatbotId:', chatbotId);
       try {
         const data = await chatbotService.get(chatbotId!);
+        const newConversation: Conversation = {
+          conversationId: '', // Generate or assign a unique ID
+          createdAt: new Date().getTime(),
+          chatbotId: chatbotId!,
+          // Add other required properties if any
+        };
+        const convResult = await conversationService.create(newConversation);
+        newConversation.conversationId = convResult.conversationId;
+        setConversation(newConversation);
         setChatbot(data);
       } catch (error) {
         console.error('Error fetching chatbot:', error);
@@ -32,16 +47,17 @@ const ChatbotDetails: React.FC = () => {
   }, [chatbotId]);
 
   const handleAskQuestion = async () => {
-    setLoading(true);
+    setLoadingChat(true);
     setError(null);
     try {
-      const result = await chatbotService.askQuestion(chatbotId, question);
-      setResponse(result.response);
+      const message: Message = { text: question, conversationId: conversation?.conversationId || '' };
+      const response: MessageResponse = await chatbotRunService.postMessage(message);
+      setResponse(response.text);
     } catch (error) {
       console.error('Error asking question:', error);
       setError('Failed to get response');
     } finally {
-      setLoading(false);
+      setLoadingChat(false);
     }
   };
 
@@ -72,6 +88,8 @@ const ChatbotDetails: React.FC = () => {
       <Typography variant="body1"><strong>LLM Model:</strong> {chatbot.llmModel}</Typography>
       <Typography variant="body1"><strong>LLM Temperature:</strong> {chatbot.llmTemperature}</Typography>
 
+      <Typography variant="body1"><strong>Conversation Id:</strong> {conversation?.conversationId}</Typography>
+
       <Box mt={4}>
         <Typography variant="h5" gutterBottom>
           Ask a Question
@@ -83,9 +101,10 @@ const ChatbotDetails: React.FC = () => {
           fullWidth
           margin="normal"
         />
-        <Button variant="contained" color="primary" onClick={handleAskQuestion} disabled={loading}>
+        <Button variant="contained" color="primary" onClick={handleAskQuestion} disabled={loadingChat}>
           Ask
         </Button>
+        {loadingChat && <CircularProgress />}
         {loading && <CircularProgress />}
         {error && <Alert severity="error">{error}</Alert>}
         {response && (

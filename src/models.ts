@@ -35,3 +35,20 @@ export interface Base {
     aqPrompt: string;
     cqPrompt: string;
   }
+
+  export interface Conversation {
+    conversationId: string;
+    chatbotId: string;
+    createdAt: number;
+    // Add other properties as needed
+  }
+
+  export interface Message {
+    conversationId: string;
+    text: string;
+  }
+
+  export interface MessageResponse {
+    conversationId: string;
+    text: string;
+  }
