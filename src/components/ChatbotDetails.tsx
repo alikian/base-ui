@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Chatbot, Conversation, MessageResponse, Message } from '../models';
 import { DataService } from '../services/DataService';
-import { Box, Typography, TextField, Button, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography, TextField, Button, CircularProgress, Alert,Paper } from '@mui/material';
 import ChatbotRunService from '../services/ChatbotRunService';
 
 
@@ -12,6 +12,7 @@ const ChatbotDetails: React.FC = () => {
   const [chatbot, setChatbot] = useState<Chatbot | null>(null);
   const [question, setQuestion] = useState<string>('');
   const [response, setResponse] = useState<string>('');
+  const [messages, setMessages] = useState<Message[]>([]);
   const [conversation, setConversation] = useState<Conversation |  null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingChat, setLoadingChat] = useState<boolean>(false);
@@ -50,9 +51,20 @@ const ChatbotDetails: React.FC = () => {
     setLoadingChat(true);
     setError(null);
     try {
-      const message: Message = { text: question, conversationId: conversation?.conversationId || '' };
-      const response: MessageResponse = await chatbotRunService.postMessage(message);
-      setResponse(response.text);
+      const userMessage: Message = { 
+        text: question, 
+        sender: 'user',
+        timestamp: new Date().getTime(),
+        conversationId: conversation?.conversationId || '' 
+      };
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
+
+      const response: MessageResponse = await chatbotRunService.postMessage(userMessage);
+
+      const chatbotMessage: Message = { sender: 'chatbot', text: response.text, timestamp: Date.now(), conversationId: conversation?.conversationId || '' };
+      setMessages((prevMessages) => [...prevMessages, chatbotMessage]);
+
+      setQuestion('');
     } catch (error) {
       console.error('Error asking question:', error);
       setError('Failed to get response');
@@ -91,6 +103,17 @@ const ChatbotDetails: React.FC = () => {
       <Typography variant="body1"><strong>Conversation Id:</strong> {conversation?.conversationId}</Typography>
 
       <Box mt={4}>
+      <Box mt={2}>
+        <Typography variant="h6">Conversation:</Typography>
+        {messages.map((message, index) => (
+          <Paper key={index} style={{ padding: '10px', margin: '10px 0', backgroundColor: message.sender === 'user' ? '#e0f7fa' : '#f1f8e9' }}>
+            <Typography variant="body2" color="textSecondary">
+              {message.sender === 'user' ? 'You' : 'Chatbot'} at {new Date(message.timestamp).toLocaleTimeString()}
+            </Typography>
+            <Typography variant="body1">{message.text}</Typography>
+          </Paper>
+        ))}
+        </Box>
         <Typography variant="h5" gutterBottom>
           Ask a Question
         </Typography>
@@ -107,12 +130,6 @@ const ChatbotDetails: React.FC = () => {
         {loadingChat && <CircularProgress />}
         {loading && <CircularProgress />}
         {error && <Alert severity="error">{error}</Alert>}
-        {response && (
-          <Box mt={2}>
-            <Typography variant="h6">Response:</Typography>
-            <Typography variant="body1">{response}</Typography>
-          </Box>
-        )}
       </Box>
     </Box>
   );

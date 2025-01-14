@@ -46,9 +46,10 @@ export interface Base {
   export interface Message {
     conversationId: string;
     text: string;
+    sender: 'user' | 'chatbot';
+    timestamp: number;
   }
 
   export interface MessageResponse {
-    conversationId: string;
     text: string;
   }
