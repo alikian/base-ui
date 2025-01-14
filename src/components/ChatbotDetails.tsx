@@ -1,25 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Chatbot, Conversation, MessageResponse, Message } from '../models';
 import { DataService } from '../services/DataService';
-import { Box, Typography, TextField, Button, CircularProgress, Alert,Paper } from '@mui/material';
+import { Box, Typography, TextField, Button, CircularProgress, Alert, Paper } from '@mui/material';
 import ChatbotRunService from '../services/ChatbotRunService';
-
-
 
 const ChatbotDetails: React.FC = () => {
   const { chatbotId } = useParams<{ chatbotId: string }>();
   const [chatbot, setChatbot] = useState<Chatbot | null>(null);
   const [question, setQuestion] = useState<string>('');
-  const [response, setResponse] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [conversation, setConversation] = useState<Conversation |  null>(null);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingChat, setLoadingChat] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const chatbotService = new DataService<Chatbot>('chatbots');
   const conversationService = new DataService<Conversation>('conversations');
-  const chatbotRunService = new ChatbotRunService(chatbotId!)
+  const chatbotRunService = new ChatbotRunService(chatbotId!);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchChatbot = async () => {
@@ -51,11 +49,11 @@ const ChatbotDetails: React.FC = () => {
     setLoadingChat(true);
     setError(null);
     try {
-      const userMessage: Message = { 
-        text: question, 
+      const userMessage: Message = {
+        text: question,
         sender: 'user',
         timestamp: new Date().getTime(),
-        conversationId: conversation?.conversationId || '' 
+        conversationId: conversation?.conversationId || ''
       };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
@@ -65,6 +63,7 @@ const ChatbotDetails: React.FC = () => {
       setMessages((prevMessages) => [...prevMessages, chatbotMessage]);
 
       setQuestion('');
+      scrollToTop();
     } catch (error) {
       console.error('Error asking question:', error);
       setError('Failed to get response');
@@ -72,6 +71,16 @@ const ChatbotDetails: React.FC = () => {
       setLoadingChat(false);
     }
   };
+
+  const scrollToTop = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollTop = 0;
+    }
+  };
+
+  useEffect(() => {
+    scrollToTop();
+  }, [messages]);
 
   if (loading) {
     return <CircularProgress />;
@@ -103,18 +112,21 @@ const ChatbotDetails: React.FC = () => {
       <Typography variant="body1"><strong>Conversation Id:</strong> {conversation?.conversationId}</Typography>
 
       <Box mt={4}>
-      <Box mt={2}>
-        <Typography variant="h6">Conversation:</Typography>
-        {messages.map((message, index) => (
-          <Paper key={index} style={{ padding: '10px', margin: '10px 0', backgroundColor: message.sender === 'user' ? '#e0f7fa' : '#f1f8e9' }}>
-            <Typography variant="body2" color="textSecondary">
-              {message.sender === 'user' ? 'You' : 'Chatbot'} at {new Date(message.timestamp).toLocaleTimeString()}
-            </Typography>
-            <Typography variant="body1">{message.text}</Typography>
-          </Paper>
-        ))}
+        {loadingChat && <CircularProgress />}
+        {error && <Alert severity="error">{error}</Alert>}
+        <Box mt={2}  ref={messagesEndRef}>
+          <Typography variant="h6">Conversation:</Typography>
+          {messages.map((message, index) => (
+            <Paper key={index} style={{ padding: '10px', margin: '10px 0', backgroundColor: message.sender === 'user' ? '#e0f7fa' : '#f1f8e9' }}>
+              <Typography variant="body2" color="textSecondary">
+                {message.sender === 'user' ? 'You' : 'Chatbot'} at {new Date(message.timestamp).toLocaleTimeString()}
+              </Typography>
+              <Typography variant="body1">{message.text}</Typography>
+            </Paper>
+          ))}
         </Box>
-        <Typography variant="h5" gutterBottom>
+      </Box>
+      <Typography variant="h5" gutterBottom>
           Ask a Question
         </Typography>
         <TextField
@@ -127,10 +139,6 @@ const ChatbotDetails: React.FC = () => {
         <Button variant="contained" color="primary" onClick={handleAskQuestion} disabled={loadingChat}>
           Ask
         </Button>
-        {loadingChat && <CircularProgress />}
-        {loading && <CircularProgress />}
-        {error && <Alert severity="error">{error}</Alert>}
-      </Box>
     </Box>
   );
 };
