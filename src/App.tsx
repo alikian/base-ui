@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes,Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate, Link } from 'react-router-dom';
+import { Box, CssBaseline, Drawer, List, ListItem, ListItemText, Toolbar, AppBar, Typography, Button } from '@mui/material';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import BaseList from './components/BaseList';
 import AddBase from './components/AddBase';
@@ -9,7 +10,9 @@ import DocumentList from './components/DocumentList';
 import ChatbotList from './components/ChatbotList';
 import ChatbotDetails from './components/ChatbotDetails';
 
-function App() {
+const drawerWidth = 240;
+
+const App: React.FC = () => {
   const { user, signOut } = useAuthenticator();
   const [bases, setBases] = useState<Base[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,33 +49,59 @@ function App() {
 
   return (
     <Router>
-      <div>
-        <p>Welcome, {user?.username}</p>
-        <Routes>
-          <Route path="/" element={<Navigate to="/bases" />} />
-          <Route path="/bases" element={
-            <>
-              <BaseList bases={bases} loading={loading} error={error} onDeleteBase={handleDeleteBase} onUpdateBase={handleUpdateBase} />
-              <AddBase onAddBase={handleAddBase} />
-            </>
-          } />
-          <Route path="/bases/:baseId" element={<DocumentList />} />
-          <Route path="/chatbots" element={
-            <>
-              <ChatbotList  />
-            </>
-          } />
-          <Route path="/chatbots/:chatbotId" element={
-            <>
-              <ChatbotDetails  />
-            </>
-          } />
-
-        </Routes>
-        <button onClick={signOut}>Sign out</button>
-      </div>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+          <Toolbar>
+            <Typography variant="h6" noWrap component="div">
+              Welcome, {user?.username}
+            </Typography>
+            <Button color="inherit" onClick={signOut} style={{ marginLeft: 'auto' }}>
+              Sign out
+            </Button>
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+          }}
+        >
+          <Toolbar />
+          <Box sx={{ overflow: 'auto' }}>
+            <List>
+              <ListItem component={Link} to="/bases">
+                <ListItemText primary="KnowlegdeBases" />
+              </ListItem>
+              <ListItem component={Link} to="/chatbots">
+                <ListItemText primary="Chatbots" />
+              </ListItem>
+            </List>
+          </Box>
+        </Drawer>
+        <Box
+          component="main"
+          sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
+        >
+          <Toolbar />
+          <Routes>
+            <Route path="/" element={<Navigate to="/bases" />} />
+            <Route path="/bases" element={
+              <>
+                <BaseList bases={bases} loading={loading} error={error} onDeleteBase={handleDeleteBase} onUpdateBase={handleUpdateBase} />
+                <AddBase onAddBase={handleAddBase} />
+              </>
+            } />
+            <Route path="/bases/:baseId" element={<DocumentList />} />
+            <Route path="/chatbots" element={<ChatbotList />} />
+            <Route path="/chatbots/:chatbotId" element={<ChatbotDetails />} />
+          </Routes>
+        </Box>
+      </Box>
     </Router>
   );
-}
+};
 
 export default App;
