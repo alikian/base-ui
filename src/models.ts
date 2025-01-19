@@ -36,6 +36,17 @@ export interface Base {
     cqPrompt: string;
   }
 
+  export interface Voicebot {
+    voicebotId: string;
+    voicebotName: string;
+    voicebotDescription: string;
+    createdAt: number;
+    llm: string;
+    llmModel: string;
+    llmTemperature: number;
+    instructions: string;
+  }
+
   export interface Conversation {
     conversationId: string;
     chatbotId: string;

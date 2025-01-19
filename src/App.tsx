@@ -9,6 +9,8 @@ import { Base } from './models';
 import DocumentList from './components/DocumentList';
 import ChatbotList from './components/ChatbotList';
 import ChatbotDetails from './components/ChatbotDetails';
+import VoicebotList from './components/VoicebotList';
+import VoicebotDetails from './components/VoicebotDetails';
 
 const drawerWidth = 240;
 
@@ -78,6 +80,9 @@ const App: React.FC = () => {
               <ListItem component={Link} to="/chatbots">
                 <ListItemText primary="Chatbots" />
               </ListItem>
+              <ListItem component={Link} to="/voicebots">
+                <ListItemText primary="Voicebots" />
+              </ListItem>
             </List>
           </Box>
         </Drawer>
@@ -97,6 +102,8 @@ const App: React.FC = () => {
             <Route path="/bases/:baseId" element={<DocumentList />} />
             <Route path="/chatbots" element={<ChatbotList />} />
             <Route path="/chatbots/:chatbotId" element={<ChatbotDetails />} />
+            <Route path="/voicebots" element={<VoicebotList />} />
+            <Route path="/voicebots/:voicebotId" element={<VoicebotDetails />} />
           </Routes>
         </Box>
       </Box>
