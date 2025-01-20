@@ -39,12 +39,13 @@ export interface Base {
   export interface Voicebot {
     voicebotId: string;
     voicebotName: string;
-    voicebotDescription: string;
     createdAt: number;
     llm: string;
     llmModel: string;
     llmTemperature: number;
     instructions: string;
+    maxTokens: number;
+    voice: string;
   }
 
   export interface Conversation {

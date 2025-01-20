@@ -43,13 +43,13 @@ const VoicebotList: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Chatbot Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Created At</TableCell>
+              <TableCell>Voicebot Name</TableCell>
               <TableCell>LLM</TableCell>
               <TableCell>LLM Model</TableCell>
               <TableCell>LLM Temperature</TableCell>
               <TableCell>Instruction</TableCell>
+              <TableCell>Voice</TableCell>
+              <TableCell>Max Tokens</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -58,12 +58,12 @@ const VoicebotList: React.FC = () => {
                 <TableCell>
                   <Link to={`/voicebots/${voicebot.voicebotId}`}>{voicebot.voicebotName}</Link>
                 </TableCell>
-                <TableCell>{voicebot.voicebotDescription}</TableCell>
-                <TableCell>{new Date(voicebot.createdAt).toLocaleString()}</TableCell>
                 <TableCell>{voicebot.llm}</TableCell>
                 <TableCell>{voicebot.llmModel}</TableCell>
                 <TableCell>{voicebot.llmTemperature}</TableCell>
                 <TableCell>{voicebot.instructions}</TableCell>
+                <TableCell>{voicebot.voice}</TableCell>
+                <TableCell>{voicebot.maxTokens}</TableCell>
               </TableRow>
             ))}
           </TableBody>

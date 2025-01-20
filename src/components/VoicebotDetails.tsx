@@ -125,10 +125,10 @@ const VoicebotDetails: React.FC = () => {
     if (voicebot) {
       try {
         await voicebotService.update(voicebotId!, voicebot);
-        alert('Voicebot details saved successfully');
+        // alert('Voicebot details saved successfully');
       } catch (err) {
         console.error('Failed to save voicebot details:', err);
-        alert('Failed to save voicebot details');
+        // alert('Failed to save voicebot details');
       }
     }
   };
@@ -178,14 +178,6 @@ const VoicebotDetails: React.FC = () => {
 
         />
         <TextField
-            label="Description"
-            value={voicebot.voicebotDescription}
-            onChange={(e) => setVoicebot({ ...voicebot, voicebotDescription: e.target.value })}
-            fullWidth
-            margin="normal"
-            size="small"
-        />
-        <TextField
             label="LLM Model"
             value={voicebot.llmModel}
             onChange={(e) => setVoicebot({ ...voicebot, llmModel: e.target.value })}
@@ -196,8 +188,18 @@ const VoicebotDetails: React.FC = () => {
         />
         <TextField
             label="LLM Temperature"
+            type="number"
             value={voicebot.llmTemperature}
             onChange={(e) => setVoicebot({ ...voicebot, llmTemperature: Number(e.target.value) })}
+            fullWidth
+            margin="normal"
+            size="small"
+
+        />
+        <TextField
+            label="Max Tokens"
+            value={voicebot.maxTokens}
+            onChange={(e) => setVoicebot({ ...voicebot, maxTokens: Number(e.target.value) })}
             fullWidth
             margin="normal"
             size="small"
@@ -207,6 +209,15 @@ const VoicebotDetails: React.FC = () => {
             label="Instruction"
             value={voicebot.instructions}
             onChange={(e) => setVoicebot({ ...voicebot, instructions: e.target.value })}
+            fullWidth
+            margin="normal"
+            size="small"
+
+        />
+        <TextField
+            label="Voice"
+            value={voicebot.voice}
+            onChange={(e) => setVoicebot({ ...voicebot, voice: e.target.value })}
             fullWidth
             margin="normal"
             size="small"
