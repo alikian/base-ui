@@ -1,80 +1,112 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Voicebot} from '../models';
+import { Voicebot } from '../models';
 import { DataService } from '../services/DataService';
-import { Box, Typography, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography, CircularProgress, Alert, TextField, Button } from '@mui/material';
+import SessionControls from './SessionControls';
+import AuthService from '../services/AuthService';
 
-import { useRef} from "react";
-// import logo from "/assets/openai-logomark.svg";
-import EventLog from "./EventLog";
-import SessionControls from "./SessionControls";
-import ToolPanel from "./ToolPanel";
+interface RouteParams extends Record<string, string > {
+  voicebotId: string;
+}
 
-const ChatbotDetails: React.FC = () => {
-  const { voicebotId } = useParams<{ voicebotId: string }>();
-  const [voicebot, setChatbot] = useState<Voicebot | null>(null);
+
+const fetchVoicebot = async (
+    voicebotId: string,
+    voicebotService: DataService<Voicebot>,
+    setVoicebot: React.Dispatch<React.SetStateAction<Voicebot | null>>,
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+) => {
+  try {
+    const data = await voicebotService.get(voicebotId);
+    setVoicebot(data);
+  } catch (err) {
+    console.error('Error fetching voicebot:', err);
+    setError('Failed to fetch voicebot');
+  } finally {
+    setLoading(false);
+  }
+};
+
+const VoicebotDetails: React.FC = () => {
+  const { voicebotId } = useParams<RouteParams>();
+  const [voicebot, setVoicebot] = useState<Voicebot | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const chatbotService = new DataService<Voicebot>('voicebots');
+  const [isSessionActive, setIsSessionActive] = useState<boolean>(false);
+  const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null);
 
+  const peerConnection = useRef<RTCPeerConnection | null>(null);
+  const audioElement = useRef<HTMLAudioElement | null>(null);
+  const voicebotService = useRef(new DataService<Voicebot>('voicebots')).current;
+  const authService = useRef(new AuthService()).current;
 
-  const [isSessionActive, setIsSessionActive] = useState(false);
-  const [events, setEvents] = useState([]);
-  const [dataChannel, setDataChannel] = useState(null);
-  const peerConnection = useRef(null);
-  const audioElement = useRef(null);
+  const initializeAudioElement = useCallback(() => {
+    const audio = document.createElement('audio');
+    audio.autoplay = true;
+    audioElement.current = audio;
+  }, []);
 
-
-  async function startSession() {
-    // Get an ephemeral key from the Fastify server
-    const tokenResponse = await fetch("/token");
-    const data = await tokenResponse.json();
-    const EPHEMERAL_KEY = data.client_secret.value;
-
-    // Create a peer connection
+  const initializePeerConnection = useCallback(async (EPHEMERAL_KEY: string, model: string) => {
     const pc = new RTCPeerConnection();
+    initializeAudioElement();
 
-    // Set up to play remote audio from the model
-    audioElement.current = document.createElement("audio");
-    audioElement.current.autoplay = true;
-    pc.ontrack = (e) => (audioElement.current.srcObject = e.streams[0]);
+    pc.ontrack = (e) => {
+      if (audioElement.current) {
+        audioElement.current.srcObject = e.streams[0];
+      }
+    };
 
-    // Add local audio track for microphone input in the browser
-    const ms = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-    });
-    pc.addTrack(ms.getTracks()[0]);
+    const localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    localStream.getTracks().forEach((track) => pc.addTrack(track));
 
-    // Set up data channel for sending and receiving events
-    const dc = pc.createDataChannel("oai-events");
+    const dc = pc.createDataChannel('oai-events');
     setDataChannel(dc);
 
-    // Start the session using the Session Description Protocol (SDP)
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
-    const baseUrl = "https://api.openai.com/v1/realtime";
-    const model = "gpt-4o-realtime-preview-2024-12-17";
-    const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
-      method: "POST",
+    const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=${model}`, {
+      method: 'POST',
       body: offer.sdp,
       headers: {
         Authorization: `Bearer ${EPHEMERAL_KEY}`,
-        "Content-Type": "application/sdp",
+        'Content-Type': 'application/sdp',
       },
     });
 
-    const answer = {
-      type: "answer",
+    const answer: RTCSessionDescriptionInit = {
+      type: 'answer',
       sdp: await sdpResponse.text(),
     };
     await pc.setRemoteDescription(answer);
 
     peerConnection.current = pc;
-  }
+  }, [initializeAudioElement]);
 
-  // Stop current session, clean up peer connection and data channel
-  function stopSession() {
+  const startSession = useCallback(async () => {
+    try {
+      const headersData = await authService.getAuthHeaders();
+      const tokenResponse = await fetch(
+          `https://api.vectorsystem.net/voicebots/${voicebotId}/token`,
+          {
+            headers: headersData,
+            method: 'POST',
+          }
+      );
+      const { client_secret } = await tokenResponse.json();
+      const EPHEMERAL_KEY = client_secret.value;
+
+      if (voicebot) {
+        await initializePeerConnection(EPHEMERAL_KEY, voicebot.llmModel);
+      }
+    } catch (err) {
+      console.error('Failed to start session:', err);
+    }
+  }, [authService, voicebotId, voicebot, initializePeerConnection]);
+
+  const stopSession = useCallback(() => {
     if (dataChannel) {
       dataChannel.close();
     }
@@ -85,62 +117,39 @@ const ChatbotDetails: React.FC = () => {
     setIsSessionActive(false);
     setDataChannel(null);
     peerConnection.current = null;
-  }
+  }, [dataChannel]);
 
-  // Send a message to the model
-  function sendClientEvent(message) {
-    if (dataChannel) {
-      message.event_id = message.event_id || crypto.randomUUID();
-      dataChannel.send(JSON.stringify(message));
-      setEvents((prev) => [message, ...prev]);
-    } else {
-      console.error(
-        "Failed to send message - no data channel available",
-        message,
-      );
+  
+
+  const handleSave = async () => {
+    if (voicebot) {
+      try {
+        await voicebotService.update(voicebotId!, voicebot);
+        alert('Voicebot details saved successfully');
+      } catch (err) {
+        console.error('Failed to save voicebot details:', err);
+        alert('Failed to save voicebot details');
+      }
     }
-  }
-
-  // Send a text message to the model
-  function sendTextMessage(message) {
-    const event = {
-      type: "conversation.item.create",
-      item: {
-        type: "message",
-        role: "user",
-        content: [
-          {
-            type: "input_text",
-            text: message,
-          },
-        ],
-      },
-    };
-
-    sendClientEvent(event);
-    sendClientEvent({ type: "response.create" });
-  }
-
+  };
 
   useEffect(() => {
-    const fetchChatbot = async () => {
-      console.log('voicebotId:', voicebotId);
-      try {
-        const data = await chatbotService.get(voicebotId!);
-        setChatbot(data);
-      } catch (error) {
-        console.error('Error fetching chatbot:', error);
-        setError('Failed to fetch chatbot');
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchVoicebot(voicebotId!, voicebotService, setVoicebot, setError, setLoading);
+  }, [voicebotId, voicebotService]);
 
-    fetchChatbot();
-  }, [voicebotId]);
+  useEffect(() => {
+    if (dataChannel) {
+      dataChannel.addEventListener('message', (e) => {
+        console.log('dataChannel message:', typeof e);
+        console.log('dataChannel message:', e.data);
+      });
 
+      dataChannel.addEventListener('open', () => {
+        setIsSessionActive(true);
 
-
+      });
+    }
+  }, [dataChannel]);
 
   if (loading) {
     return <CircularProgress />;
@@ -155,53 +164,69 @@ const ChatbotDetails: React.FC = () => {
   }
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Voicebot Details
-      </Typography>
-      <Typography variant="body1"><strong>Name:</strong> {voicebot.voicebotName}</Typography>
-      <Typography variant="body1"><strong>Description:</strong> {voicebot.voicebotDescription}</Typography>
-      <Typography variant="body1"><strong>LLM:</strong> {voicebot.llm}</Typography>
-      <Typography variant="body1"><strong>LLM Model:</strong> {voicebot.llmModel}</Typography>
-      <Typography variant="body1"><strong>LLM Temperature:</strong> {voicebot.llmTemperature}</Typography>
-      <Typography variant="body1"><strong>Instuction:</strong> {voicebot.instructions}</Typography>
+      <Box>
+        <Typography variant="h4" gutterBottom>
+          Voicebot Details
+        </Typography>
+        <TextField
+            label="Name"
+            value={voicebot.voicebotName}
+            onChange={(e) => setVoicebot({ ...voicebot, voicebotName: e.target.value })}
+            fullWidth
+            margin="normal"
+            size="small"
 
-      <>
-      <nav className="absolute top-0 left-0 right-0 h-16 flex items-center">
-        <div className="flex items-center gap-4 w-full m-4 pb-2 border-0 border-b border-solid border-gray-200">
-          {/* <img style={{ width: "24px" }} src={logo} /> */}
-          <h1>realtime console</h1>
-        </div>
-      </nav>
-      <main className="absolute top-16 left-0 right-0 bottom-0">
-        <section className="absolute top-0 left-0 right-[380px] bottom-0 flex">
-          <section className="absolute top-0 left-0 right-0 bottom-32 px-4 overflow-y-auto">
-            <EventLog events={events} />
-          </section>
-          <section className="absolute h-32 left-0 right-0 bottom-0 p-4">
-            <SessionControls
-              startSession={startSession}
-              stopSession={stopSession}
-              sendClientEvent={sendClientEvent}
-              sendTextMessage={sendTextMessage}
-              events={events}
-              isSessionActive={isSessionActive}
-            />
-          </section>
-        </section>
-        <section className="absolute top-0 w-[380px] right-0 bottom-0 p-4 pt-0 overflow-y-auto">
-          <ToolPanel
-            sendClientEvent={sendClientEvent}
-            sendTextMessage={sendTextMessage}
-            events={events}
+        />
+        <TextField
+            label="Description"
+            value={voicebot.voicebotDescription}
+            onChange={(e) => setVoicebot({ ...voicebot, voicebotDescription: e.target.value })}
+            fullWidth
+            margin="normal"
+            size="small"
+        />
+        <TextField
+            label="LLM Model"
+            value={voicebot.llmModel}
+            onChange={(e) => setVoicebot({ ...voicebot, llmModel: e.target.value })}
+            fullWidth
+            margin="normal"
+            // variant="filled"
+            size="small"
+        />
+        <TextField
+            label="LLM Temperature"
+            value={voicebot.llmTemperature}
+            onChange={(e) => setVoicebot({ ...voicebot, llmTemperature: Number(e.target.value) })}
+            fullWidth
+            margin="normal"
+            size="small"
+
+        />
+        <TextField
+            label="Instruction"
+            value={voicebot.instructions}
+            onChange={(e) => setVoicebot({ ...voicebot, instructions: e.target.value })}
+            fullWidth
+            margin="normal"
+            size="small"
+
+        />
+        <Button variant="contained" color="primary" onClick={handleSave}>
+          Save
+        </Button>
+        <nav className="absolute top-0 left-0 right-0 h-16 flex items-center">
+          <div className="flex items-center gap-4 w-full m-4 pb-2 border-0 border-b border-solid border-gray-200">
+            <h3>Realtime Console</h3>
+          </div>
+        </nav>
+        <SessionControls
+            startSession={startSession}
+            stopSession={stopSession}
             isSessionActive={isSessionActive}
-          />
-        </section>
-      </main>
-    </>
-
-    </Box>
+        />
+      </Box>
   );
 };
 
-export default ChatbotDetails;
+export default VoicebotDetails;
