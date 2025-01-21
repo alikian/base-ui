@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Voicebot } from '../models';
 import { DataService } from '../services/DataService';
-import { Box, Typography, CircularProgress, Alert, TextField, Button } from '@mui/material';
+import { Box, Typography, CircularProgress, Alert, TextField, Button, Select, MenuItem  } from '@mui/material';
 import SessionControls from './SessionControls';
 import AuthService from '../services/AuthService';
 
@@ -214,15 +214,23 @@ const VoicebotDetails: React.FC = () => {
             size="small"
 
         />
-        <TextField
+        <Select
             label="Voice"
             value={voicebot.voice}
             onChange={(e) => setVoicebot({ ...voicebot, voice: e.target.value })}
             fullWidth
-            margin="normal"
-            size="small"
 
-        />
+            size="small"
+        >
+          <MenuItem value="alloy">Alloy</MenuItem>
+          <MenuItem value="ash">Ash</MenuItem>
+          <MenuItem value="ballad">Ballad</MenuItem>
+          <MenuItem value="coral">Coral</MenuItem>
+          <MenuItem value="echo">Echo</MenuItem>
+          <MenuItem value="sage">Sage</MenuItem>
+          <MenuItem value="shimmer">Shimmer</MenuItem>
+          <MenuItem value="verse">Verse</MenuItem>
+        </Select>
         <Button variant="contained" color="primary" onClick={handleSave}>
           Save
         </Button>
