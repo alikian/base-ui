@@ -11,7 +11,7 @@ interface AddDocumentProps {
 }
 
 const AddDocument: React.FC<AddDocumentProps> = ({ baseId, onAddDocument, onUploadComplete }) => {
-  const [documentName, setDocumentName] = useState<string>('');
+  const [documentValue, setDocumentValue] = useState<string>('');
   const [documentType, setDocumentType] = useState<string>('URL');
   const [url, setUrl] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
@@ -25,13 +25,13 @@ const AddDocument: React.FC<AddDocumentProps> = ({ baseId, onAddDocument, onUplo
 
     const documentData: Partial<Document> = {
       baseId,
-      documentName,
+      documentValue,
       documentType,
       createdAt: Date.now(),
     };
 
     if (documentType === 'URL') {
-      documentData.documentName = url;
+      documentData.documentValue = url;
     } else if (documentType === 'File' && file) {
       // Handle file upload logic here
       // For example, you can upload the file to S3 and get the file URL
@@ -44,7 +44,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({ baseId, onAddDocument, onUplo
       console.log('Document added:', newDocument);
       onAddDocument(newDocument);
       setSuccess('Document added successfully!');
-      setDocumentName('');
+      setDocumentValue('');
       setUrl('');
       setFile(null);
     } catch (error) {

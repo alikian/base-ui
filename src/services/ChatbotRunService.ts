@@ -8,7 +8,7 @@ export class ChatbotRunService {
     authService = new AuthService();
 
     constructor(chatbotId: string) {
-        this.baseUrl = 'https://api.vectorsystem.net';
+        this.baseUrl = import.meta.env.VITE_BASE_API_URL;
         this.endpoint = `${this.baseUrl}/chatbots/${chatbotId}/run`;
       }
 

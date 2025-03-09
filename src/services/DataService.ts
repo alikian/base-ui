@@ -8,7 +8,8 @@ export class DataService<T> {
   authService = new AuthService();
 
   constructor(endpoint: string) {
-    this.baseUrl = 'https://api.vectorsystem.net';
+    console.log(import.meta.env.VITE_BASE_API_URL);
+    this.baseUrl = import.meta.env.VITE_BASE_API_URL;
     this.endpoint = endpoint;
   }
 

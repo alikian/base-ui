@@ -55,12 +55,15 @@ const ChatbotDetails: React.FC = () => {
         timestamp: new Date().getTime(),
         conversationId: conversation?.conversationId || ''
       };
+      console.log('userMessage:', userMessage);
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
       const response: MessageResponse = await chatbotRunService.postMessage(userMessage);
+      console.log('response:', response.text);
 
       const chatbotMessage: Message = { sender: 'chatbot', text: response.text, timestamp: Date.now(), conversationId: conversation?.conversationId || '' };
       setMessages((prevMessages) => [...prevMessages, chatbotMessage]);
+      console.log('chatbotMessage:', chatbotMessage);
 
       setQuestion('');
       scrollToTop();

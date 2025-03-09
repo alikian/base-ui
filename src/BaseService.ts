@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { Base, Chunck, Document } from './models';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-const API_BASE_URL = 'https://api.vectorsystem.net'; // Replace with your API Gateway URL
+const API_BASE_URL = 'http://localhost:8000'; // Replace with your API Gateway URL
 
 async function getJwtToken() {
   try {
@@ -158,10 +158,10 @@ class BaseService {
 
   async generatePresign(baseId:string, fileData:{ fileName: string; fileType: string }[]){
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/bases/${baseId}/presigned`, {
+    const response = await fetch(`${API_BASE_URL}/bases/${baseId}/presigneds`, {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify({ files: fileData }),
+        body: JSON.stringify(fileData),
     });
 
     if (!response.ok) {

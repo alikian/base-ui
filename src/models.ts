@@ -11,10 +11,10 @@ export interface Base {
   export interface Document {
     baseId: string;
     documentId: string;
-    documentName: string;
+    documentValue: string;
     documentType: string;
-    size: number;
     createdAt: number;
+    status: string;
     // Add other properties as needed
   }
 
