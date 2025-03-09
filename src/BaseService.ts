@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { Base, Chunck, Document } from './models';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-const API_BASE_URL = 'http://localhost:8000'; // Replace with your API Gateway URL
+const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
 async function getJwtToken() {
   try {
