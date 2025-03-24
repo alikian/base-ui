@@ -3,6 +3,7 @@ import { Voicebot } from '../models';
 import { DataService } from '../services/DataService';
 import { CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, Alert } from '@mui/material';
 import { Link } from 'react-router-dom';
+import AddVoiceBot from './AddVoiceBot';
 
 const VoicebotList: React.FC = () => {
   const [voicebots, setVoicebots] = useState<Voicebot[]>([]);
@@ -43,11 +44,11 @@ const VoicebotList: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Voicebot Name</TableCell>
-              <TableCell>LLM</TableCell>
-              <TableCell>LLM Model</TableCell>
-              <TableCell>LLM Temperature</TableCell>
-              <TableCell>Instruction</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Provider</TableCell>
+              <TableCell>Model</TableCell>
+              <TableCell>Temperature</TableCell>
+              {/* <TableCell>Instruction</TableCell> */}
               <TableCell>Voice</TableCell>
               <TableCell>Max Tokens</TableCell>
             </TableRow>
@@ -56,12 +57,12 @@ const VoicebotList: React.FC = () => {
             {voicebots.map((voicebot) => (
               <TableRow key={voicebot.voicebotId}>
                 <TableCell>
-                  <Link to={`/voicebots/${voicebot.voicebotId}`}>{voicebot.voicebotName}</Link>
+                  <Link to={`/voicebots/${voicebot.voicebotId}`}>{voicebot.name}</Link>
                 </TableCell>
-                <TableCell>{voicebot.llm}</TableCell>
-                <TableCell>{voicebot.llmModel}</TableCell>
-                <TableCell>{voicebot.llmTemperature}</TableCell>
-                <TableCell>{voicebot.instructions}</TableCell>
+                <TableCell>{voicebot.provider}</TableCell>
+                <TableCell>{voicebot.model}</TableCell>
+                <TableCell>{voicebot.temperature}</TableCell>
+                {/* <TableCell>{voicebot.instructions}</TableCell> */}
                 <TableCell>{voicebot.voice}</TableCell>
                 <TableCell>{voicebot.maxTokens}</TableCell>
               </TableRow>
@@ -69,6 +70,7 @@ const VoicebotList: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <AddVoiceBot onAddVoiceBot={(newVoiceBot) => setVoicebots([...voicebots, newVoiceBot])} />
     </div>
   );
 };

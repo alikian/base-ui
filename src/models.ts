@@ -38,14 +38,18 @@ export interface Base {
 
   export interface Voicebot {
     voicebotId: string;
-    voicebotName: string;
+    name: string;
     createdAt: number;
-    llm: string;
-    llmModel: string;
-    llmTemperature: number;
+    provider: string;
+    model: string;
+    temperature: number;
     instructions: string;
+    phoneNumber: string;
+    recordCall: boolean;
     maxTokens: number;
     voice: string;
+    phone: string;
+    apiKey: string;
   }
 
   export interface Conversation {
@@ -64,4 +68,12 @@ export interface Base {
 
   export interface MessageResponse {
     text: string;
+  }
+
+  export interface User {
+    userId: string;
+    clientId: string;
+    email: string;
+    name: string;
+    phone: string;
   }
