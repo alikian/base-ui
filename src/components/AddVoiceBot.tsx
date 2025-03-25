@@ -12,7 +12,7 @@ const AddVoiceBot: React.FC<AddVoiceBotProps> = ({ onAddVoiceBot }) => {
   const [name, setName] = useState<string>(''); // Name of the voice bot
   const [provider, setProvider] = useState<string>(''); // Provider of the voice bot
   const [model, setModel] = useState<string>(''); // Model used by the voice bot
-  const [phoneNumber, setPhoneNumber] = useState<string>(''); // Phone number for the voice bot
+  const [phone, setPhone] = useState<string>(''); // Phone number for the voice bot
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const voicebotService = new DataService<Voicebot>('voicebots');
@@ -27,13 +27,12 @@ const AddVoiceBot: React.FC<AddVoiceBotProps> = ({ onAddVoiceBot }) => {
       name,
       provider,
       model,
-      phoneNumber,
       createdAt: Date.now(), // Add a timestamp for creation
       temperature: 0, // Default value
       instructions: '', // Default value
       maxTokens: 0, // Default value
       voice: '', // Default value
-      phone: '', // Default value
+      phone, // Default value
       apiKey: '', // Default value
       recordingEnabled: false, // Default value
     };
@@ -46,7 +45,7 @@ const AddVoiceBot: React.FC<AddVoiceBotProps> = ({ onAddVoiceBot }) => {
       setName('');
       setProvider('');
       setModel('');
-      setPhoneNumber('');
+      setPhone('');
     } catch (error) {
       console.error('Error creating voice bot:', error);
       setError('Failed to create voice bot');
@@ -97,8 +96,8 @@ const AddVoiceBot: React.FC<AddVoiceBotProps> = ({ onAddVoiceBot }) => {
       </FormControl>
       <TextField
         label="Phone Number"
-        value={phoneNumber}
-        onChange={(e) => setPhoneNumber(e.target.value)}
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
         fullWidth
         margin="normal"
         required

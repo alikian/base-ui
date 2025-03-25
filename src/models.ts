@@ -44,10 +44,9 @@ export interface Base {
     model: string;
     temperature: number;
     instructions: string;
-    phoneNumber: string;
+    phone: string;
     maxTokens: number;
     voice: string;
-    phone: string;
     apiKey: string;
     recordingEnabled: boolean;
 
