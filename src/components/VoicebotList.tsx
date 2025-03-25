@@ -45,6 +45,7 @@ const VoicebotList: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
+              <TableCell>Phone</TableCell>
               <TableCell>Provider</TableCell>
               <TableCell>Model</TableCell>
               <TableCell>Temperature</TableCell>
@@ -59,6 +60,7 @@ const VoicebotList: React.FC = () => {
                 <TableCell>
                   <Link to={`/voicebots/${voicebot.voicebotId}`}>{voicebot.name}</Link>
                 </TableCell>
+                <TableCell>{voicebot.phone}</TableCell>
                 <TableCell>{voicebot.provider}</TableCell>
                 <TableCell>{voicebot.model}</TableCell>
                 <TableCell>{voicebot.temperature}</TableCell>

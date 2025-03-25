@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Voicebot } from '../models';
 import { DataService } from '../services/DataService';
 import { Box, Typography, Alert, TextField, Button, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-
+import { Checkbox, FormControlLabel } from '@mui/material';
 interface RouteParams extends Record<string, string> {
   voicebotId: string;
 }
@@ -110,6 +110,15 @@ const VoicebotDetails: React.FC = () => {
         fullWidth
         margin="normal"
         size="small"
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={voicebot.recordingEnabled}
+            onChange={(e) => setVoicebot({ ...voicebot, recordingEnabled: e.target.checked })}
+          />
+        }
+        label="Recording Enabled"
       />
       <TextField
         label="Max Tokens"
