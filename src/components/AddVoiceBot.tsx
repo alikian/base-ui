@@ -35,7 +35,8 @@ const AddVoiceBot: React.FC<AddVoiceBotProps> = ({ onAddVoiceBot }) => {
       maxTokens: 0, // Default value
       voice: '', // Default value
       phone: '', // Default value
-      apiKey: '' // Default value
+      apiKey: '', // Default value
+      recordingEnabled: false, // Default value
     };
 
     try {
