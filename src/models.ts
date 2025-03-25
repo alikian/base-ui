@@ -45,7 +45,6 @@ export interface Base {
     temperature: number;
     instructions: string;
     phoneNumber: string;
-    recordCall: boolean;
     maxTokens: number;
     voice: string;
     phone: string;
