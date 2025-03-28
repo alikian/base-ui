@@ -30,6 +30,7 @@ const AddVoiceBot: React.FC<AddVoiceBotProps> = ({ onAddVoiceBot }) => {
       createdAt: Date.now(), // Add a timestamp for creation
       temperature: 0, // Default value
       instructions: '', // Default value
+      firstPrompt: '', // Default value
       maxTokens: 0, // Default value
       voice: '', // Default value
       phone, // Default value
