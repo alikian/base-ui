@@ -137,6 +137,14 @@ const VoicebotDetails: React.FC = () => {
         margin="normal"
         size="small"
         multiline
+      />
+      <TextField
+        label="First Prompt"
+        value={voicebot.firstPrompt}
+        onChange={(e) => setVoicebot({ ...voicebot, firstPrompt: e.target.value })}
+        fullWidth
+        margin="normal"
+        size="small"
 
       />
       <TextField

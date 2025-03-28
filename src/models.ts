@@ -44,6 +44,7 @@ export interface Base {
     model: string;
     temperature: number;
     instructions: string;
+    firstPrompt: string;
     phone: string;
     maxTokens: number;
     voice: string;
