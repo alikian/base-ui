@@ -15,13 +15,14 @@ async function getJwtToken() {
   }
 }
 
-const getAuthHeaders = async (): Promise<{ Authorization: string }> => {
+const getAuthHeaders = async (): Promise<{ Authorization: string; 'Content-Type': string }> => {
   const token = await getJwtToken();
   if (!token) {
     throw new Error('Failed to retrieve JWT token');
   }
   return {
     Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json', // Added Content-Type header
   };
 };
 
@@ -158,6 +159,8 @@ class BaseService {
 
   async generatePresign(baseId:string, fileData:{ fileName: string; fileType: string }[]){
     const headers = await getAuthHeaders();
+    console.log('Generating presign for base with ID:', baseId);
+    console.log('File data:', JSON.stringify(fileData));
     const response = await fetch(`${API_BASE_URL}/bases/${baseId}/presigneds`, {
         method: 'POST',
         headers: headers,

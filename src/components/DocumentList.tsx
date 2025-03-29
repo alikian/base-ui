@@ -7,6 +7,8 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { Document } from '../models';
 import BaseService from '../BaseService';
 import AddDocument from './AddDocument';
+import { DataService } from '../services/DataService';
+import { Base } from '../models';
 
 const DocumentList: React.FC = () => {
   const { baseId } = useParams<{ baseId: string }>();
@@ -14,7 +16,9 @@ const DocumentList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<boolean>(false);
+  const [base, setBase] = useState<Base | null>(null);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+
 
   const fetchDocuments = async () => {
     if (!baseId) {
@@ -25,6 +29,10 @@ const DocumentList: React.FC = () => {
 
     try {
       const baseService = new BaseService();
+      const baseDataService = new DataService<Base>('bases');
+      baseDataService.get(baseId).then((data) => {
+        setBase(data);
+      });
       const documentsData = await baseService.listDocuments(baseId);
       setDocuments(documentsData);
     } catch (error) {
@@ -76,13 +84,6 @@ const DocumentList: React.FC = () => {
     return <Alert severity="error">{error}</Alert>;
   }
 
-  if (documents.length === 0) {
-    if(!baseId){
-      return <Alert severity="info">No documents found.</Alert>;
-    }
-    return <div><Alert severity="info">No documents found.</Alert>
-    </div>;
-  }
 
   if(!baseId){
     return <Alert severity="info">No documents found.</Alert>;
@@ -96,7 +97,7 @@ const DocumentList: React.FC = () => {
           </IconButton>
         </Link>
         <Typography variant="h4" gutterBottom>
-          Document List
+          Document List for Base ID: {base?.baseName}
         </Typography>
         <IconButton aria-label="refresh" onClick={fetchDocuments}>
           <RefreshIcon />

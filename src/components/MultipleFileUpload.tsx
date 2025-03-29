@@ -6,6 +6,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
 import BaseService from '../BaseService';
+import { Document } from '../models';
 
 
 const DropzoneContainer = styled(Paper)(() => ({
@@ -64,22 +65,46 @@ const MultipleFileUpload: React.FC<MultipleFileUploadProps> = ({ onUploadComplet
                 fileName: file.name,
                 fileType: file.type,
             }));
+            console.log('fileData', fileData);
 
             const data = await baseService.generatePresign(baseId,fileData);
 
-            const uploadPromises = files.map((file, index) => {
+            const uploadPromises = files.map(async (file, index) => {
                 const url = data[index];
-
-                return axios.put(url, file, {
-                    headers: { 'Content-Type': file.type },
-                    onUploadProgress: (progressEvent) => {
-                        const progressPercentage = progressEvent.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
-                        setProgress((prevProgress) => ({
-                            ...prevProgress,
-                            [file.name]: progressPercentage,
-                        }));
-                    },
-                });
+    
+                try {
+                    const response = await axios.put(url, file, {
+                        headers: { 'Content-Type': file.type },
+                        onUploadProgress: (progressEvent) => {
+                            const progressPercentage = progressEvent.total
+                                ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                                : 0;
+                            setProgress((prevProgress) => ({
+                                ...prevProgress,
+                                [file.name]: progressPercentage,
+                            }));
+                        },
+                    });
+    
+                    console.log('File uploaded successfully:', response);
+    
+                    // Call the provided code to create a document
+                    const documentData = {
+                        baseId,
+                        documentValue: file.name,
+                        documentType: 'File',
+                        createdAt: Date.now(),
+                    };
+                    const newDocument = await baseService.createDocument(baseId, documentData as Document);
+                    console.log('Document added:', newDocument);
+    
+                    return response.data;
+                } catch (error) {
+                    console.error('Error uploading file:', error);
+                    setSuccess(false);
+                    setOpenSnackbar(true);
+                    return null;
+                }
             });
 
             await Promise.all(uploadPromises);
