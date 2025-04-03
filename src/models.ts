@@ -15,6 +15,7 @@ export interface Base {
     documentType: string;
     createdAt: number;
     status: string;
+    chunks: number; // Number of chunks created from the document
     // Add other properties as needed
   }
 

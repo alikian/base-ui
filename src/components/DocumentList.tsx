@@ -111,7 +111,9 @@ const DocumentList: React.FC = () => {
               <TableCell>Type</TableCell>
               <TableCell>Created At</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Chunks</TableCell>
               <TableCell>Actions</TableCell>
+              {/* You can add more columns as needed */}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -121,6 +123,7 @@ const DocumentList: React.FC = () => {
                 <TableCell>{document.documentType}</TableCell>
                 <TableCell>{new Date(document.createdAt * 1000).toLocaleString()}</TableCell>
                 <TableCell>{document.status}</TableCell>
+                <TableCell>{document.chunks}</TableCell>
                 <TableCell>
                   <IconButton aria-label="delete" onClick={() => handleDeleteClick(document.documentId)}>
                     <DeleteIcon />
