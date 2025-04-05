@@ -54,8 +54,21 @@ const AddDocument: React.FC<AddDocumentProps> = ({ baseId, onAddDocument, onUplo
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        mt: 3,
+        width: '100%', // Set the width to 100% of the parent container
+        maxWidth: 600, // Add a maximum width for better layout
+        mx: 'left', // Center the box horizontally
+        backgroundColor: 'background.paper', // Add background color
+        p: 3, // Add padding for better spacing
+        borderRadius: 2, // Add rounded corners
+        boxShadow: 3, // Add a shadow for better visual appearance
+      }}
+    >
+      <Typography variant="h5" gutterBottom>
         Add New Document
       </Typography>
       {error && <Alert severity="error">{error}</Alert>}
@@ -78,9 +91,9 @@ const AddDocument: React.FC<AddDocumentProps> = ({ baseId, onAddDocument, onUplo
         />
       )}
       {documentType === 'URL' && (
-      <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-        Add URL
-      </Button>
+        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+          Add URL
+        </Button>
       )}
       {documentType === 'File' && (
         <MultipleFileUpload onUploadComplete={onUploadComplete} baseId={baseId} />

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, IconButton, Alert, Box, CircularProgress, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import { Link, useParams } from 'react-router-dom';
-import HomeIcon from '@mui/icons-material/Home';
+import { useParams } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Document } from '../models';
+import { Document,VectorStore } from '../models';
 import BaseService from '../BaseService';
 import AddDocument from './AddDocument';
 import { DataService } from '../services/DataService';
@@ -17,8 +16,11 @@ const DocumentList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [base, setBase] = useState<Base | null>(null);
+  const [vectorStore, setVectorStore] = useState<VectorStore | null>(null);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
-
+  const baseDataService = new DataService<Base>('bases');
+  const vectoreDataService = new DataService<VectorStore>('vectorstores');
+  const baseService = new BaseService();
 
   const fetchDocuments = async () => {
     if (!baseId) {
@@ -28,13 +30,17 @@ const DocumentList: React.FC = () => {
     }
 
     try {
-      const baseService = new BaseService();
-      const baseDataService = new DataService<Base>('bases');
-      baseDataService.get(baseId).then((data) => {
-        setBase(data);
-      });
+
+      const base = await baseDataService.get(baseId);
+      setBase(base);
+
+      const vectorStore = await vectoreDataService.get(base.vectorStoreId);
+      console.log('Vector Store:', vectorStore);
+      setVectorStore(vectorStore);
+
       const documentsData = await baseService.listDocuments(baseId);
       setDocuments(documentsData);
+
     } catch (error) {
       console.error('Error fetching documents:', error);
       setError('Failed to fetch documents');
@@ -91,14 +97,17 @@ const DocumentList: React.FC = () => {
   return (
     <div>
       <Box display="flex" alignItems="center" mb={2}>
-        <Link to="/bases">
-          <IconButton aria-label="home">
-            <HomeIcon />
-          </IconButton>
-        </Link>
         <Typography variant="h4" gutterBottom>
-          Document List for Base ID: {base?.baseName}
+          KnowlegdeBase: {base?.baseName}
         </Typography>
+      </Box>
+      <Box display="flex" alignItems="center" mb={2}>
+          Embeding : {vectorStore?.embedingVendorName}: {vectorStore?.embedingModeName}
+      </Box>
+      <Box display="flex" alignItems="center" mb={2}>
+        <Typography variant="h5" gutterBottom>
+          Document List
+        </Typography>        
         <IconButton aria-label="refresh" onClick={fetchDocuments}>
           <RefreshIcon />
         </IconButton>
@@ -107,7 +116,7 @@ const DocumentList: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Document Value</TableCell>
+              <TableCell>Document</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Created At</TableCell>
               <TableCell>Status</TableCell>

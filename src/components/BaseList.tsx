@@ -1,31 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, CircularProgress, Alert, IconButton, TextField, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { Link } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
-import { Base } from '../models';
+import { Base,VectorStore } from '../models';
 import BaseService from '../BaseService';
+import AddBase from './AddBase';
+import { DataService } from '../services/DataService';
 
-interface BaseListProps {
-  bases: Base[];
-  loading: boolean;
-  error: string | null;
-  onDeleteBase: (baseId: string) => void;
-  onUpdateBase: (updatedBase: Base) => void;
-}
 
-const BaseList: React.FC<BaseListProps> = ({ bases, loading, error, onDeleteBase, onUpdateBase }) => {
+
+const BaseList: React.FC = () => {
   const [editingBaseId, setEditingBaseId] = useState<string | null>(null);
   const [editedBase, setEditedBase] = useState<Partial<Base>>({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [baseToDelete, setBaseToDelete] = useState<string | null>(null);
+  const [bases, setBases] = useState<Base[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const vectoreDataService = new DataService<VectorStore>('vectorstores');
+  const [vectorStoresCache, setVectorStoresCache] = useState<Record<string, string>>({});
+
+
+  const handleAddBase = (newBase: Base) => {
+    setBases((prevBases) => [...prevBases, newBase]);
+  };
+
+  const handleDeleteBase = (baseId: string) => {
+    setBases((prevBases) => prevBases.filter(base => base.baseId !== baseId));
+  };
+
+  const handleUpdateBase = (updatedBase: Base) => {
+    setBases((prevBases) => prevBases.map(base => (base.baseId === updatedBase.baseId ? updatedBase : base)));
+  };
+
+  useEffect(() => {
+    const fetchBases = async () => {
+      try {
+        const baseService = new BaseService();
+        const basesData = await baseService.listBases();
+        const vectorStores = await vectoreDataService.getAll();
+        // Create a hash table for vectorStores
+        const vectorStoresCache = vectorStores.reduce((acc, store) => {
+          acc[store.vectorStoreId] = store.embedingVendorName+'::'+store.embedingModeName+'::'+store.embedingModeDimensions;
+          return acc;
+        }, {} as Record<string, string>);
+        setVectorStoresCache(vectorStoresCache);
+
+        setBases(basesData);
+      } catch (error) {
+        console.error('Error fetching bases:', error);
+        setError('Failed to fetch bases');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBases();
+  }, []);
+
 
   const handleDelete = async (baseId: string) => {
     try {
       const baseService = new BaseService();
       await baseService.deleteBase(baseId);
-      onDeleteBase(baseId);
+      handleDeleteBase(baseId);
     } catch (error) {
       console.error('Error deleting base:', error);
     }
@@ -41,7 +81,7 @@ const BaseList: React.FC<BaseListProps> = ({ bases, loading, error, onDeleteBase
       try {
         const baseService = new BaseService();
         const updatedBase = await baseService.updateBase(editingBaseId, editedBase);
-        onUpdateBase(updatedBase);
+        handleUpdateBase(updatedBase);
         setEditingBaseId(null);
         setEditedBase({});
       } catch (error) {
@@ -90,9 +130,7 @@ const BaseList: React.FC<BaseListProps> = ({ bases, loading, error, onDeleteBase
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>Owner ID</TableCell>
-              <TableCell>Model</TableCell>
-              <TableCell>Dimensions</TableCell>
+              <TableCell>Vector Store</TableCell>
               <TableCell>Created At</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -107,15 +145,13 @@ const BaseList: React.FC<BaseListProps> = ({ bases, loading, error, onDeleteBase
                     <Link to={`/bases/${base.baseId}`}>{base.baseName}</Link>
                   )}
                 </TableCell>
-                <TableCell>{base.ownerId}</TableCell>
                 <TableCell>
                   {editingBaseId === base.baseId ? (
-                    <TextField name="modelName" value={editedBase.modelName || ''} onChange={handleChange} />
+                    <TextField name="modelName" value={editedBase.vectorStoreId || ''} onChange={handleChange} />
                   ) : (
-                    base.modelName
+                    vectorStoresCache[base.vectorStoreId] || 'Unknown'
                   )}
                 </TableCell>
-                <TableCell>{base.dimensions}</TableCell>
                 <TableCell>{new Date(base.createdAt * 1000).toLocaleString()}</TableCell>
                 <TableCell>
                   {editingBaseId === base.baseId ? (
@@ -153,6 +189,7 @@ const BaseList: React.FC<BaseListProps> = ({ bases, loading, error, onDeleteBase
           </Button>
         </DialogActions>
       </Dialog>
+      <AddBase onAddBase={handleAddBase} />
     </div>
   );
 };

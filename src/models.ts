@@ -2,8 +2,7 @@ export interface Base {
     baseId: string;
     ownerId: string;
     baseName: string;
-    modelName: string;
-    dimensions: number;
+    vectorStoreId: string;
     createdAt: number;
     // Add other properties as needed
   }
@@ -78,4 +77,12 @@ export interface Base {
     email: string;
     name: string;
     phone: string;
+  }
+
+  export interface VectorStore {
+    vectorStoreId: string;
+    embedingModeDimensions: number;
+    embedingModeName: string;
+    embedingVendorName: string;
+    indexName: string;
   }
