@@ -50,7 +50,7 @@ export interface Base {
     voice: string;
     apiKey: string;
     recordingEnabled: boolean;
-
+    baseId: string;
   }
 
   export interface Conversation {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Voicebot } from '../models';
+import { Voicebot, Base } from '../models';
 import { DataService } from '../services/DataService';
 import { Box, Typography, Alert, TextField, Button, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { Checkbox, FormControlLabel } from '@mui/material';
@@ -8,23 +8,6 @@ interface RouteParams extends Record<string, string> {
   voicebotId: string;
 }
 
-const fetchVoicebot = async (
-  voicebotId: string,
-  voicebotService: DataService<Voicebot>,
-  setVoicebot: React.Dispatch<React.SetStateAction<Voicebot | null>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
-) => {
-  try {
-    const data = await voicebotService.get(voicebotId);
-    setVoicebot(data);
-  } catch (err) {
-    console.error('Error fetching voicebot:', err);
-    setError('Failed to fetch voicebot');
-  } finally {
-    setLoading(false);
-  }
-};
 
 const VoicebotDetails: React.FC = () => {
   const [voicebot, setVoicebot] = useState<Voicebot | null>(null);
@@ -32,8 +15,31 @@ const VoicebotDetails: React.FC = () => {
   const voicebotService = useRef(new DataService<Voicebot>('voicebots')).current;
   const [loading, setLoading] = useState<boolean>(true);
   const { voicebotId } = useParams<RouteParams>();
+  const [bases, setBases] = useState<Base[]>([]);
 
   useEffect(() => {
+    const fetchVoicebot = async (
+      voicebotId: string,
+      voicebotService: DataService<Voicebot>,
+      setVoicebot: React.Dispatch<React.SetStateAction<Voicebot | null>>,
+      setError: React.Dispatch<React.SetStateAction<string | null>>,
+      setLoading: React.Dispatch<React.SetStateAction<boolean>>
+    ) => {
+      try {
+        const baseService = new DataService<Base>('bases');
+        const data = await voicebotService.get(voicebotId);
+        setVoicebot(data);
+        const bases = await baseService.getAll();
+        setBases(bases);
+
+      } catch (err) {
+        console.error('Error fetching voicebot:', err);
+        setError('Failed to fetch voicebot');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchVoicebot(voicebotId!, voicebotService, setVoicebot, setError, setLoading);
   }, [voicebotId, voicebotService]);
 
@@ -73,6 +79,21 @@ const VoicebotDetails: React.FC = () => {
         margin="normal"
         size="small"
       />
+      <FormControl fullWidth margin="normal" required>
+        <InputLabel id="base-select-label">Base</InputLabel>
+        <Select
+          labelId="base-select-label"
+          value={voicebot.baseId || ''}
+          onChange={(e) => setVoicebot({ ...voicebot, baseId: e.target.value })}
+        >
+          {bases.map((base) => (
+            <MenuItem key={base.baseId} value={base.baseId}>
+              {base.baseName}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
       <FormControl fullWidth margin="normal" size="small">
         <InputLabel>Provider</InputLabel>
         <Select
