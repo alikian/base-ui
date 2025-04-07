@@ -30,6 +30,10 @@ const ChatbotDetails: React.FC = () => {
     {
       'llm': 'anthropic',
       'modeles': ['claude-3-7-sonnet-latest', 'claude-3-5-haiku-latest']
+    },
+    {
+      'llm': 'google',
+      'modeles': ['gemini-2.0-flash', 'gemini-2.0-flash-lite']
     }
     ]
     ;
