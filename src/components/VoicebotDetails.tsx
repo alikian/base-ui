@@ -16,6 +16,19 @@ const VoicebotDetails: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { voicebotId } = useParams<RouteParams>();
   const [bases, setBases] = useState<Base[]>([]);
+  const [models, setModels] = useState<string[]>([]);
+  const llms = [
+    {
+      'provider': 'UltraVox',
+      'modeles': ['fixie-ai/ultravox'],
+      'voices': ['David-English-British', 'Alex-Spanish', 'Tanya-English']
+    },
+    {
+      'provider': 'OpenAI',
+      'modeles': ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime-preview'],
+      'voices': ['alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse']
+    },
+  ]
 
   useEffect(() => {
     const fetchVoicebot = async (
@@ -28,6 +41,9 @@ const VoicebotDetails: React.FC = () => {
       try {
         const baseService = new DataService<Base>('bases');
         const data = await voicebotService.get(voicebotId);
+        let modelesFound = llms.find((llm) => llm.provider === data.provider)?.modeles || [];
+        setModels(modelesFound);
+
         setVoicebot(data);
         const bases = await baseService.getAll();
         setBases(bases);
@@ -97,11 +113,34 @@ const VoicebotDetails: React.FC = () => {
       <FormControl fullWidth margin="normal" size="small">
         <InputLabel>Provider</InputLabel>
         <Select
-          value={voicebot.provider}
-          onChange={(e) => setVoicebot({ ...voicebot, provider: e.target.value })}
+          value={voicebot.provider || ''}
+          onChange={(e) => {
+            const selectedProvider = e.target.value;
+            // console.log('provider change', selectedProvider);
+
+            // Find the models for the selected provider
+            const modelesFound = llms.find((llm) => llm.provider === selectedProvider)?.modeles || [];
+            // console.log('modelesFound', modelesFound);
+
+            // Update both provider and model in a single state update
+            setVoicebot((prev) => {
+              if (!prev) return prev; // Ensure prev is not null
+              return {
+                ...prev,
+                provider: selectedProvider,
+                model: modelesFound[0] || '', // Set the first model or an empty string
+              };
+            });
+
+            // Update the models state
+            setModels(modelesFound);
+          }}
         >
-          <MenuItem value="OpenAI">OpenAI</MenuItem>
-          <MenuItem value="UltraVox">UltraVox</MenuItem>
+          {llms.map((llm) => (
+            <MenuItem key={llm.provider} value={llm.provider}>
+              {llm.provider}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <FormControl fullWidth margin="normal" size="small">
@@ -110,9 +149,11 @@ const VoicebotDetails: React.FC = () => {
           value={voicebot.model}
           onChange={(e) => setVoicebot({ ...voicebot, model: e.target.value })}
         >
-          <MenuItem value="fixie-ai/ultravox">fixie-ai/ultravox</MenuItem>
-          <MenuItem value="gpt-4o-realtime-preview">gpt-4o-realtime-preview</MenuItem>
-          <MenuItem value="gpt-4o-mini-realtime-preview">gpt-4o-mini-realtime-preview</MenuItem>
+          {models.map((model) => (
+            <MenuItem key={model} value={model}>
+              {model}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <TextField
