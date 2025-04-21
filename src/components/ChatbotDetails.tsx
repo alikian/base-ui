@@ -38,8 +38,6 @@ const ChatbotDetails: React.FC = () => {
     ]
     ;
 
-
-
   useEffect(() => {
     const fetchChatbot = async () => {
       try {
