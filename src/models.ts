@@ -72,8 +72,8 @@ export interface Base {
   }
 
   export interface User {
-    userId: string;
     clientId: string;
+    role: string;
     email: string;
     name: string;
     phone: string;

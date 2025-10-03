@@ -18,8 +18,8 @@ Amplify.configure({
           redirectSignOut: ['http://localhost:3000/','https://example.com/'],
           responseType: 'code',
         },
-        username: true,
-        email: false, // Optional
+        username: false,
+        email: true, // Optional
         phone: false, // Optional
       }
     }
@@ -30,7 +30,10 @@ Amplify.configure({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Authenticator >
+    <Authenticator 
+      signUpAttributes={['email']}
+      loginMechanisms={['email']}
+    >
       <App />
     </Authenticator>
   </React.StrictMode>
