@@ -86,3 +86,9 @@ export interface Base {
     embedingVendorName: string;
     indexName: string;
   }
+
+  export interface Pipeline {
+    pipelineId: string;
+    pipelineName: string;
+    pipelineData: any;
+  }

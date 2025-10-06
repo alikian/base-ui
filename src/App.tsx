@@ -10,6 +10,8 @@ import ChatbotDetails from './components/ChatbotDetails';
 import VoicebotList from './components/VoicebotList';
 import VoicebotDetails from './components/VoicebotDetails';
 import UserList from './components/UserList';
+import PipelineList from './components/PipelineList';
+import PipelineDetails from './components/PipelineDetails';
 
 const drawerWidth = 240;
 
@@ -80,6 +82,9 @@ const App: React.FC = () => {
                 <ListItem component={Link} to="/users">
                   <ListItemText primary="Users" />
                 </ListItem>
+                <ListItem component={Link} to="/pipelines">
+                  <ListItemText primary="Pipelines" />
+                </ListItem>
               </List>
             </Box>
           </Drawer>
@@ -96,6 +101,8 @@ const App: React.FC = () => {
               <Route path="/chatbots/:chatbotId" element={<ChatbotDetails />} />
               <Route path="/voicebots" element={<VoicebotList />} />
               <Route path="/voicebots/:voicebotId" element={<VoicebotDetails />} />
+              <Route path="/pipelines" element={<PipelineList />} />
+              <Route path="/pipelines/:pipelineId" element={<PipelineDetails />} />
               <Route path="/users" element={<UserList initialUsers={[]} />} />
             </Routes>
           </Box>

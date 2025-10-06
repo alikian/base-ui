@@ -11,6 +11,7 @@
     "local": "dotenv -e local.env vite"
   },
   "dependencies": {
+    "@xyflow/react": "^12.3.4",
     "@aws-amplify/ui-react": "^6.8.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",

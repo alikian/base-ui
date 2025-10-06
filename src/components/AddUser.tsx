@@ -8,7 +8,6 @@ interface AddUserProps {
 }
 
 const AddUser: React.FC<AddUserProps> = ({ onAddUser }) => {
-  const [userId, setUserId] = useState<string>(''); // Hidden field
   const [clientId, setClientId] = useState<string>(''); // Hidden field
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>(''); // Added state for name
@@ -23,8 +22,8 @@ const AddUser: React.FC<AddUserProps> = ({ onAddUser }) => {
     setSuccess(null);
 
     const userData: User = {
-      userId,
       clientId,
+      role: 'user',
       email,
       name,
       phone, // Include phone in the user data
@@ -34,7 +33,6 @@ const AddUser: React.FC<AddUserProps> = ({ onAddUser }) => {
       const newUser = await userService.create(userData);
       onAddUser(newUser);
       setName(''); // Reset name field
-      setUserId('');
       setClientId('');
       setEmail('');
       setName(''); // Reset name field
@@ -52,12 +50,7 @@ const AddUser: React.FC<AddUserProps> = ({ onAddUser }) => {
       </Typography>
       {error && <Alert severity="error">{error}</Alert>}
       {success && <Alert severity="success">{success}</Alert>}
-      {/* Hidden fields for userId and clientId */}
-      <TextField
-        type="hidden"
-        value={userId}
-        onChange={(e) => setUserId(e.target.value)}
-      />
+      {/* Hidden field for clientId */}
       <TextField
         type="hidden"
         value={clientId}
