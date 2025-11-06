@@ -12,6 +12,8 @@ import VoicebotDetails from './components/VoicebotDetails';
 import UserList from './components/UserList';
 import PipelineList from './components/PipelineList';
 import PipelineDetails from './components/PipelineDetails';
+import EmbeddingList from './components/EmbeddingList';
+import EmbeddingDetails from './components/EmbeddingDetails';
 
 const drawerWidth = 240;
 
@@ -85,6 +87,9 @@ const App: React.FC = () => {
                 <ListItem component={Link} to="/pipelines">
                   <ListItemText primary="Pipelines" />
                 </ListItem>
+                <ListItem component={Link} to="/embeddings">
+                  <ListItemText primary="Embeddings" />
+                </ListItem>
               </List>
             </Box>
           </Drawer>
@@ -103,6 +108,8 @@ const App: React.FC = () => {
               <Route path="/voicebots/:voicebotId" element={<VoicebotDetails />} />
               <Route path="/pipelines" element={<PipelineList />} />
               <Route path="/pipelines/:pipelineId" element={<PipelineDetails />} />
+              <Route path="/embeddings" element={<EmbeddingList />} />
+              <Route path="/embeddings/:embeddingId" element={<EmbeddingDetails />} />
               <Route path="/users" element={<UserList initialUsers={[]} />} />
             </Routes>
           </Box>

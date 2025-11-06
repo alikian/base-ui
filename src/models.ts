@@ -79,6 +79,14 @@ export interface Base {
     phone: string;
   }
 
+  export interface embedding {
+    embeddingId: string;
+    embeddingVendor: string;
+    embeddingModel: string;
+    embeddingDimensions: number;
+    apiKey: string;
+  }
+
   export interface VectorStore {
     vectorStoreId: string;
     embedingModeDimensions: number;

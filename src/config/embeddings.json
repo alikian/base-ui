@@ -1,0 +1,24 @@
+{
+  "defaultVendor": "openai",
+  "vendors": {
+    "openai": {
+      "label": "OpenAI",
+      "models": [
+        { "id": "text-embedding-3-small", "label": "text-embedding-3-small", "dimensions": 1536 },
+        { "id": "text-embedding-3-large", "label": "text-embedding-3-large", "dimensions": 3072 }
+      ]
+    },
+    "cloudi": {
+      "label": "Cloudi",
+      "models": [
+        { "id": "cloud-embed-v1", "label": "cloud-embed-v1", "dimensions": 1024 }
+      ]
+    },
+    "google": {
+      "label": "Google",
+      "models": [
+        { "id": "text-embedding-004", "label": "text-embedding-004", "dimensions": 768 }
+      ]
+    }
+  }
+}
