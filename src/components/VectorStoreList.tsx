@@ -20,16 +20,16 @@ import {
   DialogActions,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Base, VectorStore } from '../models';
+import { VectorStore, embedding } from '../models';
 import { DataService } from '../services/DataService';
 
-const BaseList: React.FC = () => {
+const VectorStoreList: React.FC = () => {
   const navigate = useNavigate();
-  const service = useMemo(() => new DataService<Base>('bases'), []);
-  const vsService = useMemo(() => new DataService<VectorStore>('vectorstores'), []);
+  const service = useMemo(() => new DataService<VectorStore>('vectorstores'), []);
+  const embeddingService = useMemo(() => new DataService<embedding>('embeddings'), []);
 
-  const [items, setItems] = useState<Base[]>([]);
-  const [vsMap, setVsMap] = useState<Record<string, string>>({});
+  const [items, setItems] = useState<VectorStore[]>([]);
+  const [embeddingMap, setEmbeddingMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [, setError] = useState<string | null>(null);
   const [snack, setSnack] = useState<{ open: boolean; severity: 'success' | 'error' | 'info' | 'warning'; message: string }>({
@@ -42,25 +42,25 @@ const BaseList: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const [all, vs] = await Promise.all([service.getAll(), vsService.getAll()]);
+        const [all, embeds] = await Promise.all([service.getAll(), embeddingService.getAll()]);
         setItems(all || []);
         const map: Record<string, string> = {};
-        (vs || []).forEach((v) => {
-          map[v.vectorStoreId] = (v as any).vectorStoreName || (v.vectorStoreConfig as any)?.indexName || v.vectorStoreId;
+        (embeds || []).forEach((e) => {
+          map[e.embeddingId] = `${e.embeddingVendor} / ${e.embeddingModel}`;
         });
-        setVsMap(map);
+        setEmbeddingMap(map);
       } catch (e) {
-        console.error('Failed to fetch bases:', e);
-        setError('Failed to fetch bases');
-        setSnack({ open: true, severity: 'error', message: 'Failed to fetch bases' });
+        console.error('Failed to fetch vector stores:', e);
+        setError('Failed to fetch vector stores');
+        setSnack({ open: true, severity: 'error', message: 'Failed to fetch vector stores' });
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [service, vsService]);
+  }, [service, embeddingService]);
 
-  const handleAdd = () => navigate('/bases/new');
+  const handleAdd = () => navigate('/vectorstores/new');
 
   const openConfirmDelete = (id: string, label?: string) => setConfirm({ open: true, id, label });
   const closeConfirm = () => setConfirm({ open: false });
@@ -68,12 +68,12 @@ const BaseList: React.FC = () => {
     if (!confirm.id) return;
     try {
       await service.delete(confirm.id);
-      setItems((prev) => prev.filter((x) => x.baseId !== confirm.id));
-      setSnack({ open: true, severity: 'success', message: 'Base deleted' });
+      setItems((prev) => prev.filter((x) => x.vectorStoreId !== confirm.id));
+      setSnack({ open: true, severity: 'success', message: 'Vector store deleted' });
     } catch (e) {
-      console.error('Failed to delete base:', e);
-      setError('Failed to delete base');
-      setSnack({ open: true, severity: 'error', message: 'Failed to delete base' });
+      console.error('Failed to delete vector store:', e);
+      setError('Failed to delete vector store');
+      setSnack({ open: true, severity: 'error', message: 'Failed to delete vector store' });
     } finally {
       closeConfirm();
     }
@@ -85,9 +85,9 @@ const BaseList: React.FC = () => {
     <>
       <TableContainer component={Paper} sx={{ mt: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
-          <Typography variant="h5" sx={{ m: 0 }}>Knowledge Bases</Typography>
+          <Typography variant="h5" sx={{ m: 0 }}>Vector Stores</Typography>
           <Button variant="contained" color="primary" onClick={handleAdd}>
-            Add Base
+            Add Vector Store
           </Button>
         </Box>
 
@@ -95,28 +95,26 @@ const BaseList: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>Storage Type</TableCell>
-              <TableCell>Storage Path</TableCell>
-              <TableCell>Vector Store</TableCell>
-              <TableCell>Created</TableCell>
+              <TableCell>Vendor</TableCell>
+              <TableCell>Index Name</TableCell>
+              <TableCell>Embedding</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {items.map((it) => (
               <TableRow
-                key={it.baseId}
+                key={it.vectorStoreId}
                 hover
                 sx={{ cursor: 'pointer' }}
-                onClick={() => navigate(`/bases/${it.baseId}`)}
+                onClick={() => navigate(`/vectorstores/${it.vectorStoreId}`)}
               >
-                <TableCell>{it.baseName || '-'}</TableCell>
-                <TableCell>{it.storageType || '-'}</TableCell>
-                <TableCell>{it.storagePath || '-'}</TableCell>
-                <TableCell>{vsMap[it.vectorStoreId] || it.vectorStoreId || '-'}</TableCell>
-                <TableCell>{it.createdAt ? new Date(it.createdAt).toLocaleString() : '-'}</TableCell>
+                <TableCell>{(it as any).vectorStoreName || '-'}</TableCell>
+                <TableCell>{it.vectorStoreVendor || '-'}</TableCell>
+                <TableCell>{(it.vectorStoreConfig as any)?.indexName || '-'}</TableCell>
+                <TableCell>{embeddingMap[it.embeddingId] || it.embeddingId || '-'}</TableCell>
                 <TableCell align="right" onClick={(e) => e.stopPropagation()}>
-                  <Button variant="outlined" color="error" size="small" onClick={() => openConfirmDelete(it.baseId, it.baseName)}>
+                  <Button variant="outlined" color="error" size="small" onClick={() => openConfirmDelete(it.vectorStoreId, (it as any).vectorStoreName || (it.vectorStoreConfig as any)?.indexName)}>
                     Delete
                   </Button>
                 </TableCell>
@@ -124,7 +122,7 @@ const BaseList: React.FC = () => {
             ))}
             {items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} align="center">No bases found.</TableCell>
+                <TableCell colSpan={5} align="center">No vector stores found.</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -145,11 +143,11 @@ const BaseList: React.FC = () => {
         </Alert>
       </Snackbar>
 
-      <Dialog open={confirm.open} onClose={closeConfirm} aria-labelledby="confirm-delete-base">
-        <DialogTitle id="confirm-delete-base">Delete base</DialogTitle>
+      <Dialog open={confirm.open} onClose={closeConfirm} aria-labelledby="confirm-delete-vs">
+        <DialogTitle id="confirm-delete-vs">Delete vector store</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this base{confirm.label ? ` (${confirm.label})` : ''}? This action cannot be undone.
+            Are you sure you want to delete this vector store{confirm.label ? ` (${confirm.label})` : ''}? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -161,4 +159,4 @@ const BaseList: React.FC = () => {
   );
 };
 
-export default BaseList;
+export default VectorStoreList;

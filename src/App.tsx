@@ -4,6 +4,7 @@ import { Box, CssBaseline, Drawer, List, ListItem, ListItemText, Toolbar, AppBar
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import BaseList from './components/BaseList';
+import BaseDetails from './components/BaseDetails';
 import DocumentList from './components/DocumentList';
 import ChatbotList from './components/ChatbotList';
 import ChatbotDetails from './components/ChatbotDetails';
@@ -14,6 +15,8 @@ import PipelineList from './components/PipelineList';
 import PipelineDetails from './components/PipelineDetails';
 import EmbeddingList from './components/EmbeddingList';
 import EmbeddingDetails from './components/EmbeddingDetails';
+import VectorStoreList from './components/VectorStoreList';
+import VectorStoreDetails from './components/VectorStoreDetails';
 
 const drawerWidth = 240;
 
@@ -73,7 +76,7 @@ const App: React.FC = () => {
             <Box sx={{ overflow: 'auto' }}>
               <List>
                 <ListItem component={Link} to="/bases">
-                  <ListItemText primary="KnowlegdeBases" />
+                  <ListItemText primary="Knowledge Bases" />
                 </ListItem>
                 <ListItem component={Link} to="/chatbots">
                   <ListItemText primary="Chatbots" />
@@ -90,6 +93,9 @@ const App: React.FC = () => {
                 <ListItem component={Link} to="/embeddings">
                   <ListItemText primary="Embeddings" />
                 </ListItem>
+                <ListItem component={Link} to="/vectorstores">
+                  <ListItemText primary="Vector Stores" />
+                </ListItem>
               </List>
             </Box>
           </Drawer>
@@ -101,7 +107,8 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Navigate to="/bases" />} />
               <Route path="/bases" element={<BaseList />} />
-              <Route path="/bases/:baseId" element={<DocumentList />} />
+              <Route path="/bases/:baseId" element={<BaseDetails />} />
+              <Route path="/bases/:baseId/documents" element={<DocumentList />} />
               <Route path="/chatbots" element={<ChatbotList />} />
               <Route path="/chatbots/:chatbotId" element={<ChatbotDetails />} />
               <Route path="/voicebots" element={<VoicebotList />} />
@@ -110,6 +117,8 @@ const App: React.FC = () => {
               <Route path="/pipelines/:pipelineId" element={<PipelineDetails />} />
               <Route path="/embeddings" element={<EmbeddingList />} />
               <Route path="/embeddings/:embeddingId" element={<EmbeddingDetails />} />
+              <Route path="/vectorstores" element={<VectorStoreList />} />
+              <Route path="/vectorstores/:vectorStoreId" element={<VectorStoreDetails />} />
               <Route path="/users" element={<UserList initialUsers={[]} />} />
             </Routes>
           </Box>

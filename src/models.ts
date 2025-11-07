@@ -1,10 +1,11 @@
+// Knowledge Base
 export interface Base {
     baseId: string;
-    ownerId: string;
     baseName: string;
     vectorStoreId: string;
     createdAt: number;
-    // Add other properties as needed
+    storageType: string ;
+    storagePath: string
   }
   
   export interface Document {
@@ -89,10 +90,10 @@ export interface Base {
 
   export interface VectorStore {
     vectorStoreId: string;
-    embedingModeDimensions: number;
-    embedingModeName: string;
-    embedingVendorName: string;
-    indexName: string;
+    vectorStoreName: string;
+    embeddingId: string;
+    vectorStoreVendor: string;
+    vectorStoreConfig: any;
   }
 
   export interface Pipeline {
