@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import { useParams } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Document,VectorStore } from '../models';
+import { Document,VectorStore, embedding } from '../models';
 import BaseService from '../BaseService';
 import AddDocument from './AddDocument';
 import { DataService } from '../services/DataService';
@@ -17,10 +17,12 @@ const DocumentList: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [base, setBase] = useState<Base | null>(null);
   const [vectorStore, setVectorStore] = useState<VectorStore | null>(null);
+  const [embeddingDetails, setEmbeddingDetails] = useState<embedding | null>(null);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const baseDataService = new DataService<Base>('bases');
   const vectoreDataService = new DataService<VectorStore>('vectorstores');
   const baseService = new BaseService();
+  const embeddingDataService = new DataService<embedding>('embeddings');
 
   const fetchDocuments = async () => {
     if (!baseId) {
@@ -30,17 +32,19 @@ const DocumentList: React.FC = () => {
     }
 
     try {
-
       const base = await baseDataService.get(baseId);
       setBase(base);
 
       const vectorStore = await vectoreDataService.get(base.vectorStoreId);
-      console.log('Vector Store:', vectorStore);
       setVectorStore(vectorStore);
+
+      if (vectorStore.embeddingId) {
+        const embeddingData = await embeddingDataService.get(vectorStore.embeddingId);
+        setEmbeddingDetails(embeddingData);
+      }
 
       const documentsData = await baseService.listDocuments(baseId);
       setDocuments(documentsData);
-
     } catch (error) {
       console.error('Error fetching documents:', error);
       setError('Failed to fetch documents');
@@ -78,6 +82,18 @@ const DocumentList: React.FC = () => {
     }
   };
 
+  const formatFileSize = (sizeInBytes: number): string => {
+    if (sizeInBytes >= 1e9) {
+      return (sizeInBytes / 1e9).toFixed(2) + ' GB';
+    } else if (sizeInBytes >= 1e6) {
+      return (sizeInBytes / 1e6).toFixed(2) + ' MB';
+    } else if (sizeInBytes >= 1e3) {
+      return (sizeInBytes / 1e3).toFixed(2) + ' KB';
+    } else {
+      return sizeInBytes + ' Bytes';
+    }
+  };
+
   useEffect(() => {
     fetchDocuments();
   }, [baseId]);
@@ -96,13 +112,19 @@ const DocumentList: React.FC = () => {
   }
   return (
     <div>
-      <Box display="flex" alignItems="center" mb={2}>
+      <Box display="flex" flexDirection="column" alignItems="flex-start" mb={2}>
         <Typography variant="h4" gutterBottom>
-          KnowlegdeBase: {base?.baseName}
+          Knowledge Base: {base?.baseName}
         </Typography>
-      </Box>
-      <Box display="flex" alignItems="center" mb={2}>
-          Embeding : {vectorStore?.embedingVendorName}: {vectorStore?.embedingModeName}
+        <Typography variant="body2" color="textSecondary">
+          Storage Type: {base?.storageType}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          Vector Store: {vectorStore?.vectorStoreName || 'N/A'}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          Embedding Model: {embeddingDetails?.embeddingModel || 'N/A'} ({embeddingDetails?.embeddingDimensions || 'N/A'} dimensions)
+        </Typography>
       </Box>
       <Box display="flex" alignItems="center" mb={2}>
         <Typography variant="h5" gutterBottom>
@@ -117,6 +139,7 @@ const DocumentList: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell>Document</TableCell>
+              <TableCell>Size</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Created At</TableCell>
               <TableCell>Status</TableCell>
@@ -128,7 +151,8 @@ const DocumentList: React.FC = () => {
           <TableBody>
             {documents.map((document) => (
               <TableRow key={document.documentId}>
-                <TableCell>{document.documentValue}</TableCell>
+                <TableCell>{document.fileName}</TableCell>
+                <TableCell>{formatFileSize(document.fileSize)}</TableCell>
                 <TableCell>{document.documentType}</TableCell>
                 <TableCell>{new Date(document.createdAt * 1000).toLocaleString()}</TableCell>
                 <TableCell>{document.status}</TableCell>

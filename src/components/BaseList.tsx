@@ -96,7 +96,6 @@ const BaseList: React.FC = () => {
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Storage Type</TableCell>
-              <TableCell>Storage Path</TableCell>
               <TableCell>Vector Store</TableCell>
               <TableCell>Created</TableCell>
               <TableCell align="right">Actions</TableCell>
@@ -112,7 +111,6 @@ const BaseList: React.FC = () => {
               >
                 <TableCell>{it.baseName || '-'}</TableCell>
                 <TableCell>{it.storageType || '-'}</TableCell>
-                <TableCell>{it.storagePath || '-'}</TableCell>
                 <TableCell>{vsMap[it.vectorStoreId] || it.vectorStoreId || '-'}</TableCell>
                 <TableCell>{it.createdAt ? new Date(it.createdAt).toLocaleString() : '-'}</TableCell>
                 <TableCell align="right" onClick={(e) => e.stopPropagation()}>

@@ -26,7 +26,7 @@ const BaseDetails: React.FC = () => {
   const service = useMemo(() => new DataService<Base>('bases'), []);
   const vectorStoreService = useMemo(() => new DataService<VectorStore>('vectorstores'), []);
 
-  const [form, setForm] = useState<Base>({ baseId: '', baseName: '', vectorStoreId: '', createdAt: Date.now(), storageType: 's3', storagePath: '' });
+  const [form, setForm] = useState<Base>({ baseId: '', baseName: '', vectorStoreId: '', createdAt: Date.now(), storageType: 's3' });
   const [vectorStores, setVectorStores] = useState<VectorStore[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [snack, setSnack] = useState<{ open: boolean; severity: 'success' | 'error'; message: string }>({ open: false, severity: 'success', message: '' });
@@ -62,7 +62,6 @@ const BaseDetails: React.FC = () => {
         baseName: form.baseName,
         vectorStoreId: form.vectorStoreId,
         storageType: form.storageType,
-        storagePath: form.storagePath,
         createdAt: form.createdAt || Date.now(),
       };
 
@@ -116,14 +115,6 @@ const BaseDetails: React.FC = () => {
             <MenuItem value="s3">Amazon S3</MenuItem>
           </Select>
         </FormControl>
-
-        <TextField
-          label="Storage Path"
-          placeholder="bucket/prefix or path"
-          value={form.storagePath}
-          onChange={(e) => setForm((prev) => ({ ...prev, storagePath: e.target.value }))}
-          fullWidth
-        />
 
         <FormControl fullWidth>
           <InputLabel id="vs-label">Vector Store</InputLabel>

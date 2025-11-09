@@ -174,6 +174,26 @@ class BaseService {
     const data = await response.json(); // Define `data` here with the JSON response
     return data;
   }
+
+  async addDocuments(baseId: string, formData: FormData): Promise<Document[]> {
+    try {
+      const headers = await getAuthHeaders();
+      // Remove 'Content-Type' since FormData sets it automatically
+      if (headers['Content-Type']) {
+        delete headers['Content-Type'];
+      }
+
+      const response: AxiosResponse<Document[]> = await axios.post(
+        `${API_BASE_URL}/bases/${baseId}/documents`,
+        formData,
+        { headers }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error adding documents:', error);
+      throw error;
+    }
+  }
 }
 
 export default BaseService;

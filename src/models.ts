@@ -4,14 +4,14 @@ export interface Base {
     baseName: string;
     vectorStoreId: string;
     createdAt: number;
-    storageType: string ;
-    storagePath: string
+    storageType: string;
   }
   
   export interface Document {
     baseId: string;
     documentId: string;
-    documentValue: string;
+    fileName: string;
+    fileSize: number;
     documentType: string;
     createdAt: number;
     status: string;
